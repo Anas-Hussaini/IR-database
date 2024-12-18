@@ -1,0 +1,13 @@
+pymupdf
+python-docx
+PyPDF2
+pdfplumber
+openai
+python-dotenv
+deepdiff
+pandas
+fastapi
+uvicorn
+python-multipart
+openpyxl
+setuptools
