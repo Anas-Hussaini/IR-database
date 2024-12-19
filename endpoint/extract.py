@@ -1,9 +1,9 @@
 import sys
 sys.path.append('../')
-import config
+import enpoint_config
 import importlib
-importlib.reload(config)
-from config import model
+importlib.reload(enpoint_config)
+from enpoint_config import model
 from extract_functions import extract_text_from_pdf, get_json_from_openai, json_string_to_json, convert_to_feet
 
 def process_pdf(pdf_path):

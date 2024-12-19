@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 import re
 import json
 from openai import OpenAI
-import config
+import enpoint_config
 import importlib
-importlib.reload(config)
-from config import dotenv_path, prompt
+importlib.reload(enpoint_config)
+from enpoint_config import dotenv_path, prompt
 
 load_dotenv(dotenv_path, override=True)
 

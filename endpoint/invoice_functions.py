@@ -1,9 +1,9 @@
 import pandas as pd
 import math
-import config
+import enpoint_config
 import importlib
-importlib.reload(config)
-from config import products, shingle_ids, cap_ids, product_quantity_formulas, rates
+importlib.reload(enpoint_config)
+from enpoint_config import products, shingle_ids, cap_ids, product_quantity_formulas, rates
 
 def process_json_and_return_invoice_df(data, number_of_vents, number_of_pipe_boots, shingle_color, type_of_structure, supplier, material_delivery_date, installation_date, homeowner_email, drip_edge):
     """
