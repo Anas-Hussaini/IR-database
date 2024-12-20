@@ -1,9 +1,9 @@
 import pandas as pd
 import math
-import config_invoice
-import importlib
-importlib.reload(config_invoice)
-from config_invoice import products, shingle_ids, cap_ids, product_quantity_formulas, rates
+# import config_invoice
+# import importlib
+# importlib.reload(config_invoice)
+from .config_invoice import products, shingle_ids, cap_ids, product_quantity_formulas, rates
 
 def process_json_and_return_invoice_df(data, number_of_vents, number_of_pipe_boots, shingle_color, type_of_structure, supplier, material_delivery_date, installation_date, homeowner_email, drip_edge):
     """
@@ -58,19 +58,19 @@ def process_json_and_return_invoice_df(data, number_of_vents, number_of_pipe_boo
     ]
 
     product_quantity_calculations = [
-        f"({shingles_percentage_wastage}*{data["TotalRoofArea_sqft"]}/100)*3",  # Shingles
-        f"({caps_percentage_wastage}*{data["RidgesHipsLength_ft"]})/25",  # Caps
-        f"({data["EavesRakesLength_ft"]})/100",  # Shingle Starters
-        f"({data["EavesLength_ft"]}+{data["ValleysLength_ft"]})/33",  # Sand Ice & Water Shield
-        f"({shingles_percentage_wastage}*{data["TotalRoofArea_sqft"]}/100)/10",  # Synthetic Underlayments
-        f"({data["TotalRoofArea_sqft"]}/100)/18",  # Roofing Nails
-        f"({data["RidgesLength_ft"]})/4",  # Ridge Vent System
+        f"({shingles_percentage_wastage}*{data['TotalRoofArea_sqft']}/100)*3",  # Shingles
+        f"({caps_percentage_wastage}*{data['RidgesHipsLength_ft']})/25",  # Caps
+        f"({data['EavesRakesLength_ft']})/100",  # Shingle Starters
+        f"({data['EavesLength_ft']}+{data['ValleysLength_ft']})/33",  # Sand Ice & Water Shield
+        f"({shingles_percentage_wastage}*{data['TotalRoofArea_sqft']}/100)/10",  # Synthetic Underlayments
+        f"({data['TotalRoofArea_sqft']}/100)/18",  # Roofing Nails
+        f"({data['RidgesLength_ft']})/4",  # Ridge Vent System
         f"{number_of_vents}",  # Back Roof Vent
-        f"({data["StepFlashingLength_ft"]})/60",  # Step Flashing
+        f"({data['StepFlashingLength_ft']})/60",  # Step Flashing
         f"{number_of_pipe_boots}",  # Pipe Flashing
-        f"({data["TotalRoofArea_sqft"]}/100)/8",  # Roofing Staples
-        f"(({data["TotalRoofArea_sqft"]}/100)/8)+1",  # Construction Sealant
-        f"({data["WallFlashingLength_ft"]})/10"  # Dormer Flashing Sticks
+        f"({data['TotalRoofArea_sqft']}/100)/8",  # Roofing Staples
+        f"(({data['TotalRoofArea_sqft']}/100)/8)+1",  # Construction Sealant
+        f"({data['WallFlashingLength_ft']})/10"  # Dormer Flashing Sticks
     ]
 
     # Calculate quantities

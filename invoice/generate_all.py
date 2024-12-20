@@ -1,7 +1,7 @@
 import os
 import json
-from invoice_functions import process_json_and_return_invoice_df
-from config_invoice import EXTRACTION_DIR
+from .invoice_functions import process_json_and_return_invoice_df
+from .config_invoice import EXTRACTION_DIR
 
 number_of_vents=2
 number_of_pipe_boots=2

@@ -1,5 +1,5 @@
-from extract import process_pdf
-from invoice_functions import process_json_and_return_invoice_df
+from extraction.extract import process_pdf
+from invoice.invoice_functions import process_json_and_return_invoice_df
 
 
 def process_pdf_and_return_invoice(pdf_path, number_of_vents, number_of_pipe_boots, shingle_color, type_of_structure, supplier, material_delivery_date, installation_date, homeowner_email, drip_edge):

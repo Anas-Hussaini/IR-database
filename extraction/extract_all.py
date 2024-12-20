@@ -1,6 +1,6 @@
 import os
 import json
-from extract import process_pdf
+from .extract import process_pdf
 
 # Specify the directory
 directory_path = 'raw_data/all_pdf_measurement_reports'

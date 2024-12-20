@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, File, UploadFile, Form
 from fastapi.responses import FileResponse
 from enum import Enum
 from datetime import date
-from make_invoice import process_pdf_and_return_invoice
+from .make_invoice import process_pdf_and_return_invoice
 
 # Create an instance of FastAPI
 app = FastAPI()
@@ -132,13 +132,13 @@ async def get_invoice(
             detail=f"Failed to process the file: {str(e)}"
         )
 
-# Run the FastAPI app
-import uvicorn
-
 if __name__ == "__main__":
+
+    import uvicorn
+
     uvicorn.run(
-        "fast_api:app",
+        app,
         host="127.0.0.1",
         port=8000,
-        reload=True
+        # reload=True
     )

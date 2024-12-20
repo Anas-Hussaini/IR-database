@@ -62,7 +62,7 @@ INSURED_PROJECT/
 ├── .gitignore                    # Git ignore file for version control
 └── requirements.txt              # File containing list of required packages
 
-
+```
 ---
 
 ## Features
@@ -79,18 +79,18 @@ INSURED_PROJECT/
 pip install -r requirements.txt
 
 ### Evaluation
-  --> Make a .env file and store OPENAI_API_KEY="YOUR-OPENAI-API-KEY-HERE" in it.
-  --> Make a virtual environment with python and run "pip install -r requirements.txt" in command line.
+  1. Make a .env file and store OPENAI_API_KEY="YOUR-OPENAI-API-KEY-HERE" in it.
+  2. Make a virtual environment with python and run "pip install -r requirements.txt" in command line.
 all_pdf_mesurement_reports directory has all the pdf files to be processed.
 
-### Download Raw Measrement Data
-  --> Download raw measrement data from drive (https://drive.google.com/drive/folders/0AItoAT6ynZkcUk9PVA) to a directory named "raw_data\insured_roofs_drive_data" 
+### Download Raw Measurement Data
+  - Download raw measrement data from drive (https://drive.google.com/drive/folders/0AItoAT6ynZkcUk9PVA) to a directory named "raw_data\insured_roofs_drive_data" 
 
 ### Process Raw Data
 Run process_raw_data\classify_pdfs.py to clean the data.
-  --> It will save the needed pdf files in "raw_data\all_pdf_measurement_reports" directory.
-  --> It will save the unwanted pdf files (less than 6 pages in this case) in "raw_data\waste_reports" directory.
-  --> It will save the unprocessed (locked) pdf files in "raw_data\unprocessed" directory.
+  - It will save the needed pdf files in "raw_data\all_pdf_measurement_reports" directory.
+  - It will save the unwanted pdf files (less than 6 pages in this case) in "raw_data\waste_reports" directory.
+  - It will save the unprocessed (locked) pdf files in "raw_data\unprocessed" directory.
 
 ### Optional
   --> Run process_raw_data\match_files.py to compare files between two different directories.
@@ -108,9 +108,9 @@ Run extraction\extract_all.py to extract measurement data in json format from al
   --> Run extraction\evaluate.py to match extracted jsons with ground truth in "extraction\truth_json" directory.
 
 ## Invoice Generation
-Run invoice\generate_all.py to generate invoices for all extracted measurement jsons in csv format.
-Run invoice\evaluate_all.py to evaluate invoices with grouth truth stored in "invoice\Data_Invoices_Manual.csv"
-Run invoice\combine_evaluations.py to make a combined evaluation report in csv format stored in "invoice\combined_evaluation" directory.
+- Run invoice\generate_all.py to generate invoices for all extracted measurement jsons in csv format.
+- Run invoice\evaluate_all.py to evaluate invoices with grouth truth stored in "invoice\Data_Invoices_Manual.csv"
+- Run invoice\combine_evaluations.py to make a combined evaluation report in csv format stored in "invoice\combined_evaluation" directory.
 
 ### Optional
   --> Run invoice\generate_invoice.py to generate individual invoices.
@@ -118,8 +118,21 @@ Run invoice\combine_evaluations.py to make a combined evaluation report in csv f
 ### Optional
   --> Use "compare_invoice_and_manual_quantities()" in invoice\evaluate_invoice.py to match individual extracted json with ground truth in "extraction\truth_json" directory.
 
-## Endpoint
-Run endpoint\fast_api.py to activate Invoice-Generation-API endpoint.
-  --> Go to "{localhost}/docs" and test the endpoint by uploading measurement report pdf and enter the required inputs.
 
 
+
+## Running the Service
+
+To run the service, navigate to the project root directory and use one of the following commands:
+
+1. Using Python's module runner:
+  ```bash
+   python -m endpoint.fast_api
+  ```
+
+2. Using Uvicorn:
+  ```bash
+  uvicorn endpoint.fast_api:app --host 127.0.0.1 --port 8000
+  ```
+
+  - Go to "localhost:8000/docs" and test the endpoint by uploading measurement report pdf and enter the required inputs.

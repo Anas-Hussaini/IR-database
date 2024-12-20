@@ -1,6 +1,6 @@
 import json
 import os
-from extract_functions import convert_to_feet
+from .extract_functions import convert_to_feet
 
 def compare_json(json1, json2, path="root"):
     """
@@ -112,12 +112,12 @@ def process_directories(dir1, dir2):
     print(f"Files with mismatches: {len(mismatched_files)}")
     print(f"Match Percentage: {match_percentage:.2f}%")
 
-# Usage
-dir1 = "extraction/extraction_json"
-# dir1 = "extraction_json"
-# dir2 = "extraction/truth_json"
-# dir2 = "truth_json"
-dir2 = "extraction/false_json"
-# dir2 = "false_json"
+# # Usage
+# dir1 = "extraction/extraction_json"
+# # dir1 = "extraction_json"
+# # dir2 = "extraction/truth_json"
+# # dir2 = "truth_json"
+# dir2 = "extraction/false_json"
+# # dir2 = "false_json"
 
-process_directories(dir1, dir2)
+# process_directories(dir1, dir2)
