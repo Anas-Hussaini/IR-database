@@ -51,3 +51,6 @@ Thumbs.db
 
 all_pdf_measurement_reports/
 *__pycache__
+app-env
+postgres/fast_api_postgres.py
+postgres/database.py

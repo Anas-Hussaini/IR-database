@@ -11,6 +11,7 @@ def process_pdf_and_return_invoice(pdf_path, number_of_vents, number_of_pipe_boo
     return invoice_df
 
 
+## Usage ##
 
 # number_of_vents=2
 # number_of_pipe_boots=2

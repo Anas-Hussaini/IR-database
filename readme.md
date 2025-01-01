@@ -79,7 +79,7 @@ INSURED_PROJECT/
 pip install -r requirements.txt
 
 ### Evaluation
-  1. Make a .env file and store OPENAI_API_KEY="YOUR-OPENAI-API-KEY-HERE" in it.
+  1. Make a .env file and store OPENAI_API_KEY="YOUR-OPENAI-API-KEY-HERE" and "DB_PASSWORD="YOUR-POSTGRES-DATABASE-PASSWORD" in it.
   2. Make a virtual environment with python and run "pip install -r requirements.txt" in command line.
 all_pdf_mesurement_reports directory has all the pdf files to be processed.
 
