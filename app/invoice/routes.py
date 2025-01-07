@@ -1,31 +1,31 @@
 import os
 import logging
-from fastapi import FastAPI, HTTPException, File, UploadFile, Form
+from fastapi import APIRouter, File, UploadFile, Form, HTTPException
 from fastapi.responses import FileResponse
-from enum import Enum
 from datetime import date
+from enum import Enum
 from .make_invoice import process_pdf_and_return_invoice
 
-
-# Create an instance of FastAPI
-app = FastAPI()
-
 # Define the directories
-UPLOAD_DIR = "endpoint/uploaded_files"
-DOWNLOAD_DIR = "endpoint/invoices"
+UPLOAD_DIR = "app/invoice/uploaded_files"
+DOWNLOAD_DIR = "app/invoice/saved_invoices"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-# Configure logging
-LOG_FILE = "app.log"
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
-)
+def get_unique_filename(directory, base_name):
+    """
+    Generate a unique filename in the specified directory.
+    """
+    counter = 1
+    while True:
+        file_name = f"{base_name}({counter}).csv"
+        file_path = os.path.join(directory, file_name)
+        if not os.path.exists(file_path):
+            return file_path
+        counter += 1
+
+# Create a new router
+router = APIRouter()
 
 # Enum classes for dropdown options
 class ShingleColor(str, Enum):
@@ -47,30 +47,7 @@ class Supplier(str, Enum):
     xyz_materials = "XYZ Materials"
     roof_master = "Roof Master"
 
-def get_unique_filename(directory, base_name):
-    """
-    Generate a unique filename in the specified directory.
-    """
-    counter = 1
-    while True:
-        file_name = f"{base_name}({counter}).csv"
-        file_path = os.path.join(directory, file_name)
-        if not os.path.exists(file_path):
-            return file_path
-        counter += 1
-
-@app.get('/')
-async def root():
-    """
-    Root endpoint to check if the API is running.
-    """
-    logging.info("Root endpoint accessed")
-    return {
-        'message': 'This is a FAST API Insured Roofs trial',
-        'data': 2024
-    }
-
-@app.post("/get-invoice/")
+@router.post("/get-invoice/")
 async def get_invoice(
     file: UploadFile = File(...),
     number_of_vents: int = Form(...),
@@ -132,16 +109,3 @@ async def get_invoice(
             status_code=500,
             detail=f"Failed to process the file: {str(e)}"
         )
-
-if __name__ == "__main__":
-
-    import uvicorn
-
-    uvicorn.run(
-        app,
-        host="127.0.0.1",
-        port=8000,
-        # reload=True
-    )
-
-

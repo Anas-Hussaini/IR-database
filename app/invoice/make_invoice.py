@@ -27,3 +27,26 @@ def process_pdf_and_return_invoice(pdf_path, number_of_vents, number_of_pipe_boo
 # invoice_df = process_pdf_and_return_invoice(pdf_path, number_of_vents, number_of_pipe_boots, shingle_color, type_of_structure, supplier, material_delivery_date, installation_date, homeowner_email, drip_edge)
 
 # print(invoice_df)
+
+##############################################################33
+
+# formula_json={
+#     "formulas": [
+#         "a * b + c",
+#         "d - e / f",
+#         "g ** 2 + h * i"
+#     ]
+# }
+
+# formulas = formula_json["formulas"]  # Extract the formulas as a list of strings
+
+# # Step 2: Define values for the variables
+# values = {
+#     "a": 5, "b": 10, "c": 2,
+#     "d": 20, "e": 8, "f": 2,
+#     "g": 3, "h": 4, "i": 5
+# }
+
+# formula=formulas[0]
+
+# result = eval(formula, {}, values)

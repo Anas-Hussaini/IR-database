@@ -1,20 +1,11 @@
-import os
 from PyPDF2 import PdfReader
 from dotenv import load_dotenv
 import re
 import json
 from openai import OpenAI
-# import config
-# import importlib
-# importlib.reload(config)
-from .config import dotenv_path, prompt
-
-load_dotenv(dotenv_path, override=True)
-
-OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
-
-# Set OpenAI
+from app.config import OPENAI_API_KEY, prompt
 from openai import OpenAI
+
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 def extract_text_from_pdf(pdf_path):

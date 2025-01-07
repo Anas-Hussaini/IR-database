@@ -44,3 +44,12 @@ typing_extensions==4.12.2
 tzdata==2024.2
 uvicorn==0.34.0
 psycopg2==2.9.10
+sqlalchemy==2.0.36
+pydantic-settings==2.4.0
+logging==0.4.9.6
+datetime==5.5
+typing
+passlib==1.7.4
+python-jose==3.3.0
+alembic==1.13.2
+psycopg2-binary==2.9.10

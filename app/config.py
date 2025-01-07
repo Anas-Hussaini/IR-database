@@ -1,25 +1,20 @@
-### CLASSIFY RAW DATA CONFIG ###
+import os
+from dotenv import load_dotenv
 
-# --- Directory Paths ---
-INPUT_DIR = "raw_data/insured_roofs_drive_data"
-ALL_PDF_REPORTS_DIR = "raw_data/all_pdf_measurement_reports"
-UNPROCESSED_DIR = "raw_data/unprocessed"
-WASTE_REPORTS_DIR = "raw_data/waste_reports"
+load_dotenv(
+    dotenv_path='.env',
+    override=True
+)
 
-# --- Retry Configuration ---
-RETRIES = 3  # Number of retries for locked files
-DELAY = 2  # Delay in seconds between retries
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
 
-# --- Keywords for Classification ---
-ROOFR_KEYWORD = "Roofr"
-EAGLEVIEW_KEYWORDS = ["EagleView", "Eagle View"]
-PAGE_THRESHOLD = 6  # Minimum number of pages to qualify as a measurement report
-
-### PROCESS PDF CONFIG ###
-
-dotenv_path=".env"
-
-model="gpt-4o-mini"
+POSTGRES_USER = "postgres"
+POSTGRES_PASSWORD = DB_PASSWORD
+POSTGRES_DB = "insured_roofs_database"
+DB_HOST = "localhost"
+DB_PORT = "5432"
+DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{DB_HOST}:{DB_PORT}/{POSTGRES_DB}"
 
 prompt = f"""
  ```json
@@ -40,12 +35,3 @@ prompt = f"""
         }}
         }}```
 """
-
-# Database connection parameters
-db_config = {
-    "dbname": "insured_roofs_database",
-    "user": "postgres",
-    "password": "DB_PASSWORD",
-    "host": "localhost",  # or your server's hostname
-    "port": 5432          # default PostgreSQL port
-}
