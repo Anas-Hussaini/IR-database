@@ -12,8 +12,8 @@ router = APIRouter(
 
 # Create a new wastage condition
 @router.post("/", response_model=schemas.WastageCondition)
-def create_wastage_condition(condition: schemas.WastageConditionCreate, db: Session = Depends(get_db)):
-    return crud.create_wastage_condition(db=db, condition=condition)
+def create_wastage_condition(wastage_condition: schemas.WastageConditionCreate, db: Session = Depends(get_db)):
+    return crud.create_wastage_condition(db=db, wastage=wastage_condition)
 
 # Get all wastage conditions
 @router.get("/", response_model=list[schemas.WastageCondition])

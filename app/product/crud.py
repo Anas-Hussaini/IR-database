@@ -26,6 +26,19 @@ def get_products(db: Session, skip: int = 0, limit: int = 10):
 def get_product_by_id(db: Session, product_id: str):
     return db.query(Product).filter(Product.product_id == product_id).first()
 
+# Get product by category, supplier, and colour
+def get_product_by_category_supplier_colour(db: Session, category: str, supplier_id: int, colour: str):
+    return (
+        db.query(Product)
+        .filter(
+            Product.category == category,
+            Product.supplier == supplier_id,
+            Product.colour == colour
+        )
+        .first()
+    )
+
+
 # Update product by ID
 def update_product(db: Session, product_id: str, description: str, unit: str, category: str, unit_price: float, supplier: str, colour: str):
     db_product = db.query(Product).filter(Product.product_id == product_id).first()

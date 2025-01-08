@@ -29,6 +29,7 @@ router = APIRouter()
 
 # Enum classes for dropdown options
 class ShingleColor(str, Enum):
+    Default = "Default"
     Charcoal = "Charcoal"
     WeatherWood = "Weather Wood"
     Barkwood = "Barkwood"
@@ -43,7 +44,7 @@ class StructureType(str, Enum):
     Complex = "Complex"
 
 class Supplier(str, Enum):
-    beacon_supplies = "Beacon Supplies"
+    beacon_supplies = "BEACON"
     xyz_materials = "XYZ Materials"
     roof_master = "Roof Master"
 
