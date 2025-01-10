@@ -27,7 +27,7 @@ def get_suppliers(skip: int = 0, limit: int = 10, db: Session = Depends(get_db))
     return crud.get_suppliers(db=db, skip=skip, limit=limit)
 
 # Get a supplier by ID
-@router.get("/{supplier_id}", response_model=schemas.Supplier)
+@router.get("/get_supplier_by_supplier_id", response_model=schemas.Supplier)
 def get_supplier(supplier_id: str, db: Session = Depends(get_db)):
     """
     Endpoint to retrieve a supplier by ID.
@@ -38,7 +38,7 @@ def get_supplier(supplier_id: str, db: Session = Depends(get_db)):
     return db_supplier
 
 # Update supplier by ID
-@router.put("/{supplier_id}", response_model=schemas.Supplier)
+@router.put("/update_supplier_by_supplier_id", response_model=schemas.Supplier)
 def update_supplier(
     supplier_id: str,
     name: str,
@@ -65,7 +65,7 @@ def update_supplier(
     return db_supplier
 
 # Delete supplier by ID
-@router.delete("/{supplier_id}", response_model=schemas.Supplier)
+@router.delete("/delete_supplier_by_supplier_id", response_model=schemas.Supplier)
 def delete_supplier(supplier_id: str, db: Session = Depends(get_db)):
     """
     Endpoint to delete a supplier by ID.

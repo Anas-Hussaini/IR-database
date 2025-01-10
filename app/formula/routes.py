@@ -51,7 +51,7 @@ def get_formulas(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return formulas
 
 # Get a formula by category
-@router.get("/{category}", response_model=schemas.Formula)
+@router.get("/get_formula_by_category", response_model=schemas.Formula)
 def get_formula(category: str, db: Session = Depends(get_db)):
     """
     Endpoint to retrieve a formula by its category.
@@ -71,7 +71,7 @@ def get_formula(category: str, db: Session = Depends(get_db)):
     return db_formula
 
 # Update formula by category
-@router.put("/{category}", response_model=schemas.Formula)
+@router.put("/update_formula_by_category", response_model=schemas.Formula)
 def update_formula(category: str, equation: str, wastage_factor: float, db: Session = Depends(get_db)):
     """
     Endpoint to update a formula by its category.
@@ -93,7 +93,7 @@ def update_formula(category: str, equation: str, wastage_factor: float, db: Sess
     return db_formula
 
 # Delete formula by category
-@router.delete("/{category}", response_model=schemas.Formula)
+@router.delete("/delete_formula_by_category", response_model=schemas.Formula)
 def delete_formula(category: str, db: Session = Depends(get_db)):
     """
     Endpoint to delete a formula by its category.

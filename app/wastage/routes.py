@@ -21,7 +21,7 @@ def get_wastage_conditions(skip: int = 0, limit: int = 10, db: Session = Depends
     return crud.get_wastage_conditions(db=db, skip=skip, limit=limit)
 
 # Get a wastage condition by ID
-@router.get("/{wastage_factor_id}", response_model=schemas.WastageCondition)
+@router.get("/get_wastage_factor_by_id", response_model=schemas.WastageCondition)
 def get_wastage_condition(wastage_factor_id: int, db: Session = Depends(get_db)):
     db_condition = crud.get_wastage_condition_by_id(db=db, wastage_factor_id=wastage_factor_id)
     if db_condition is None:
@@ -29,7 +29,7 @@ def get_wastage_condition(wastage_factor_id: int, db: Session = Depends(get_db))
     return db_condition
 
 # Update wastage condition by ID
-@router.put("/{wastage_factor_id}", response_model=schemas.WastageCondition)
+@router.put("/update_wastage_factor_by_id", response_model=schemas.WastageCondition)
 def update_wastage_condition(
     wastage_factor_id: int, 
     category: str, 
@@ -47,7 +47,7 @@ def update_wastage_condition(
     return db_condition
 
 # Delete wastage condition by ID
-@router.delete("/{wastage_factor_id}", response_model=schemas.WastageCondition)
+@router.delete("/delete_wastage_factor_by_id", response_model=schemas.WastageCondition)
 def delete_wastage_condition(wastage_factor_id: int, db: Session = Depends(get_db)):
     db_condition = crud.delete_wastage_condition(db=db, wastage_factor_id=wastage_factor_id)
     if db_condition is None:
