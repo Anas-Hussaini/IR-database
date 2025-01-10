@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from . import crud  
-from .. import schemas  
-from ..database import get_db 
+from . import crud  # Module where CRUD operations are defined
+from .. import schemas  # Module containing data models
+from ..database import get_db  # Dependency for database session
 
 # Create an APIRouter instance for wastage condition-related routes
 router = APIRouter(
-    prefix="/wastage_conditions",  # all routes in this router will be prefixed with /wastage-conditions
-    tags=["wastage_conditions"],  # Tagging the endpoints for grouping in the docs
+    prefix="/wastage_conditions",  # Prefix for all routes in this router
+    tags=["wastage_conditions"],  # Tagging endpoints for API documentation
 )
 
 # Create a new wastage condition
@@ -15,7 +15,7 @@ router = APIRouter(
 def create_wastage_condition(wastage_condition: schemas.WastageConditionCreate, db: Session = Depends(get_db)):
     return crud.create_wastage_condition(db=db, wastage=wastage_condition)
 
-# Get all wastage conditions
+# Get all wastage conditions with pagination
 @router.get("/", response_model=list[schemas.WastageCondition])
 def get_wastage_conditions(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return crud.get_wastage_conditions(db=db, skip=skip, limit=limit)
@@ -34,15 +34,13 @@ def update_wastage_condition(
     wastage_factor_id: int, 
     category: str, 
     wastage_condition: str,
-    wastage_percentage: float, 
     db: Session = Depends(get_db)
 ):
     db_condition = crud.update_wastage_condition(
         db=db, 
         wastage_factor_id=wastage_factor_id, 
         category=category,
-        wastage_condition=wastage_condition, 
-        wastage_percentage=wastage_percentage
+        wastage_condition=wastage_condition
     )
     if db_condition is None:
         raise HTTPException(status_code=404, detail="Wastage condition not found")

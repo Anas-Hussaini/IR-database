@@ -1,41 +1,136 @@
 from sqlalchemy.orm import Session
 from ..models import Formula
 from ..schemas import FormulaCreate
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Create a new formula
 def create_formula(db: Session, formula: FormulaCreate):
-    db_formula = Formula(
-        category=formula.category,
-        equation=formula.equation,
-        wastage_factor=formula.wastage_factor
-    )
-    db.add(db_formula)
-    db.commit()
-    db.refresh(db_formula)
-    return db_formula
+    """
+    Creates a new formula in the database.
+
+    Parameters:
+        db (Session): The SQLAlchemy session object.
+        formula (FormulaCreate): The formula data to be created.
+
+    Returns:
+        Formula: The created formula object.
+    """
+    try:
+        db_formula = Formula(
+            category=formula.category,
+            equation=formula.equation,
+            wastage_factor=formula.wastage_factor
+        )
+        db.add(db_formula)
+        db.commit()
+        db.refresh(db_formula)
+        logger.info("Successfully created a new formula with category: %s", formula.category)
+        return db_formula
+    except Exception as e:
+        logger.error("Error occurred while creating formula: %s", e)
+        db.rollback()
+        raise
 
 # Get all formulas
 def get_formulas(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Formula).offset(skip).limit(limit).all()
+    """
+    Retrieves all formulas from the database.
+
+    Parameters:
+        db (Session): The SQLAlchemy session object.
+        skip (int): The number of records to skip.
+        limit (int): The number of records to retrieve.
+
+    Returns:
+        List[Formula]: A list of formula objects.
+    """
+    try:
+        formulas = db.query(Formula).offset(skip).limit(limit).all()
+        logger.info("Retrieved %d formulas from the database.", len(formulas))
+        return formulas
+    except Exception as e:
+        logger.error("Error occurred while fetching formulas: %s", e)
+        raise
 
 # Get formula by category
 def get_formula_by_category(db: Session, category: str):
-    return db.query(Formula).filter(Formula.category == category).first()
+    """
+    Retrieves a formula by its category.
+
+    Parameters:
+        db (Session): The SQLAlchemy session object.
+        category (str): The category of the formula to retrieve.
+
+    Returns:
+        Formula or None: The formula object if found, otherwise None.
+    """
+    try:
+        formula = db.query(Formula).filter(Formula.category == category).first()
+        if formula:
+            logger.info("Retrieved formula with category: %s", category)
+        else:
+            logger.warning("No formula found with category: %s", category)
+        return formula
+    except Exception as e:
+        logger.error("Error occurred while fetching formula by category: %s", e)
+        raise
 
 # Update formula by category
-def update_formula(db: Session, category: str, equation: str, wastage_factor:float):
-    db_formula = db.query(Formula).filter(Formula.category == category).first()
-    if db_formula:
-        db_formula.equation = equation
-        db_formula.wastage_factor = wastage_factor
-        db.commit()
-        db.refresh(db_formula)
-    return db_formula
+def update_formula(db: Session, category: str, equation: str, wastage_factor: float):
+    """
+    Updates an existing formula by its category.
+
+    Parameters:
+        db (Session): The SQLAlchemy session object.
+        category (str): The category of the formula to update.
+        equation (str): The new equation value.
+        wastage_factor (float): The new wastage factor value.
+
+    Returns:
+        Formula or None: The updated formula object if successful, otherwise None.
+    """
+    try:
+        db_formula = db.query(Formula).filter(Formula.category == category).first()
+        if db_formula:
+            db_formula.equation = equation
+            db_formula.wastage_factor = wastage_factor
+            db.commit()
+            db.refresh(db_formula)
+            logger.info("Updated formula with category: %s", category)
+        else:
+            logger.warning("No formula found with category: %s", category)
+        return db_formula
+    except Exception as e:
+        logger.error("Error occurred while updating formula by category: %s", e)
+        db.rollback()
+        raise
 
 # Delete formula by category
 def delete_formula(db: Session, category: str):
-    db_formula = db.query(Formula).filter(Formula.category == category).first()
-    if db_formula:
-        db.delete(db_formula)
-        db.commit()
-    return db_formula
+    """
+    Deletes a formula by its category from the database.
+
+    Parameters:
+        db (Session): The SQLAlchemy session object.
+        category (str): The category of the formula to delete.
+
+    Returns:
+        Formula or None: The deleted formula object if successful, otherwise None.
+    """
+    try:
+        db_formula = db.query(Formula).filter(Formula.category == category).first()
+        if db_formula:
+            db.delete(db_formula)
+            db.commit()
+            logger.info("Deleted formula with category: %s", category)
+        else:
+            logger.warning("No formula found with category: %s", category)
+        return db_formula
+    except Exception as e:
+        logger.error("Error occurred while deleting formula by category: %s", e)
+        db.rollback()
+        raise

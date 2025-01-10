@@ -4,32 +4,50 @@ import re
 import json
 from openai import OpenAI
 from app.config import OPENAI_API_KEY, prompt
-from openai import OpenAI
 
+# Load environment variables
+load_dotenv()
+
+# Initialize the OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 def extract_text_from_pdf(pdf_path):
     """
-    Extracts text from a PDF file.
+    Extracts text from a PDF file using PyPDF2.
+    
+    Args:
+        pdf_path (str): The path to the PDF file.
+        
+    Returns:
+        str: The extracted text from the PDF.
     """
     try:
         reader = PdfReader(pdf_path)
         text = ""
         for page in reader.pages:
             text += page.extract_text()
-            # text=text.strip()
         return text.strip()
     except Exception as e:
         print(f"Error reading PDF: {e}")
         return None
 
-def get_json_from_openai(text,model):
+def get_json_from_openai(text, model="gpt-3.5-turbo"):
     """
     Sends extracted text to OpenAI and retrieves information in JSON format.
+    
+    Args:
+        text (str): The extracted text from the PDF.
+        model (str): The OpenAI model to use (default: "gpt-3.5-turbo").
+        
+    Returns:
+        dict: The extracted information in JSON format.
     """
     try:
         base_prompt = f"""
-        You are an AI expert in document analysis and data extraction. I will provide a document, and your task is to extract relevant information and present it in a **clean JSON format**. Ensure all fields are accurately filled based on the data provided. If a field is not available in the document, mark it as `null`.
+        You are an AI expert in document analysis and data extraction. I will provide a document, 
+        and your task is to extract relevant information and present it in a **clean JSON format**. 
+        Ensure all fields are accurately filled based on the data provided. 
+        If a field is not available in the document, mark it as `null`.
 
         ### Extract the following data in JSON format:
         {prompt}
@@ -37,12 +55,12 @@ def get_json_from_openai(text,model):
         {text}
         """
         response = client.chat.completions.create(
-            model=model,  # You can use "gpt-3.5-turbo" if needed
+            model=model,
             messages=[{"role": "system", "content": "You are a helpful assistant for extracting knowledge in JSON format."},
                       {"role": "user", "content": base_prompt}],
             temperature=0
         )
-        # Extract the content of the assistant's response
+        # Extract and return the content of the assistant's response
         return response.choices[0].message.content
     except Exception as e:
         print(f"Error communicating with OpenAI: {e}")
@@ -52,10 +70,10 @@ def json_string_to_json(json_output):
     """
     Processes a JSON string, extracts the JSON data if embedded within other text,
     and returns it.
-
+    
     Args:
         json_output (str): The JSON data or text containing JSON.
-
+        
     Returns:
         dict or None: The parsed JSON object if successful, or None if no valid JSON is found.
     """
@@ -63,11 +81,10 @@ def json_string_to_json(json_output):
         print("No JSON output provided.")
         return None
 
-    # Try to extract the JSON part using regex
+    # Extract the JSON part using regex
     json_match = re.search(r'({.*})', json_output, re.DOTALL)
     if json_match:
         json_string = json_match.group(1)  # Extract the JSON part
-
         try:
             # Parse the extracted JSON string
             json_object = json.loads(json_string)
@@ -76,11 +93,18 @@ def json_string_to_json(json_output):
             print("Failed to parse JSON string.")
     else:
         print("No JSON data found in the output.")
-
     return None
 
-# Define a helper function to convert length strings to feet
 def convert_to_feet(length):
+    """
+    Converts length from different units to feet.
+    
+    Args:
+        length (str): The length value in various units (e.g., "10ft", "5 in", etc.)
+        
+    Returns:
+        float: The length converted to feet.
+    """
     if length is None:  # Handle None case
         return 0
     
