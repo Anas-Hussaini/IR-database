@@ -55,3 +55,6 @@ app-env
 postgres/
 app/invoice/saved_invoices/
 app/invoice/uploaded_files/
+.git/
+project_structure.py
+project_structure.txt
