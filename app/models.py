@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Column, String, Float
+from sqlalchemy import Integer, Column, String, Float, ForeignKey
 from .database import Base
 
 class Product(Base):
@@ -7,9 +7,9 @@ class Product(Base):
     product_id = Column(String, primary_key=True)
     description = Column(String, nullable=False)
     unit = Column(String, nullable=False)
-    category = Column(String, nullable=False)
+    category = Column(String, ForeignKey("formulae.category"), nullable=False)  # Foreign key reference to Formula
     unit_price = Column(Float, default=0, nullable=False)
-    supplier = Column(String, nullable=False)
+    supplier = Column(String, ForeignKey("suppliers.supplier_id"), nullable=False)  # Foreign key reference to Supplier
     colour = Column(String, nullable=False)
 
 class Supplier(Base):
@@ -33,7 +33,6 @@ class WastageCondition(Base):
     __tablename__ = 'wastage_conditions'
     
     wastage_factor_id = Column(Integer, primary_key=True)
-    category = Column(String, nullable=False)
+    category = Column(String, ForeignKey("formulae.category"), nullable=False)  # Foreign key reference to Formula
     wastage_condition = Column(String, nullable=False)
     wastage_factor = Column(Float, nullable=False)
-

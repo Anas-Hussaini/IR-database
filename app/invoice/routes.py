@@ -53,7 +53,7 @@ class StructureType(str, Enum):
     Complex = "Complex"
 
 class Supplier(str, Enum):
-    beacon_supplies = "BEACON"
+    beacon_supplies = "BEACON BUILDING PRODUCTS"
     xyz_materials = "XYZ Materials"
     roof_master = "Roof Master"
     
