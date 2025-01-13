@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Column, String, Float, ForeignKey
+from sqlalchemy import Integer, Column, String, Float, ForeignKey, Boolean
 from .database import Base
 
 class Product(Base):
@@ -28,6 +28,7 @@ class Formula(Base):
     category = Column(String, primary_key=True)
     equation = Column(String, nullable=False)
     wastage_factor = Column(Float, nullable=False)
+    is_colour = Column(Boolean, nullable=False)
 
 class WastageCondition(Base):
     __tablename__ = 'wastage_conditions'

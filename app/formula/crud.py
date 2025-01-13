@@ -23,7 +23,8 @@ def create_formula(db: Session, formula: FormulaCreate):
         db_formula = Formula(
             category=formula.category,
             equation=formula.equation,
-            wastage_factor=formula.wastage_factor
+            wastage_factor=formula.wastage_factor,
+            is_colour=formula.is_colour
         )
         db.add(db_formula)
         db.commit()
@@ -55,6 +56,51 @@ def get_formulas(db: Session, skip: int = 0, limit: int = 10):
     except Exception as e:
         logger.error("Error occurred while fetching formulas: %s", e)
         raise
+    
+    from sqlalchemy.orm import Session
+from sqlalchemy import distinct
+from typing import List
+
+from sqlalchemy.orm import Session
+from typing import Tuple, List
+
+def get_categories_with_variation_type(db: Session) -> Tuple[List[str], List[str]]:
+    """
+    Categorizes categories based on the value of the 'is_colour' column.
+
+    Parameters:
+        db (Session): The SQLAlchemy session object.
+
+    Returns:
+        Tuple[List[str], List[str]]: 
+            - A list of categories where 'is_colour' is True.
+            - A list of categories where 'is_colour' is False.
+    """
+    try:
+        logger.info("Categorizing categories based on the 'is_colour' column.")
+        
+        # Fetch all rows with category and is_colour columns
+        rows = db.query(Formula.category, Formula.is_colour).distinct().all()
+        
+        # Initialize the result lists
+        categories_with_colour = []
+        categories_with_no_variation = []
+
+        # Categorize based on the value of 'is_colour'
+        for category, is_colour in rows:
+            if is_colour:  # If 'is_colour' is True
+                categories_with_colour.append(category)
+            else:  # If 'is_colour' is False
+                categories_with_no_variation.append(category)
+        
+        logger.info("Categorized %d categories with colour and %d without variation.",
+                    len(categories_with_colour), len(categories_with_no_variation))
+        return categories_with_colour, categories_with_no_variation
+    except Exception as e:
+        logger.error("Error occurred while categorizing categories: %s", e)
+        raise
+
+
 
 # Get formula by category
 def get_formula_by_category(db: Session, category: str):
@@ -80,7 +126,7 @@ def get_formula_by_category(db: Session, category: str):
         raise
 
 # Update formula by category
-def update_formula(db: Session, category: str, equation: str, wastage_factor: float):
+def update_formula(db: Session, category: str, equation: str, wastage_factor: float, is_colour: bool):
     """
     Updates an existing formula by its category.
 
@@ -98,6 +144,7 @@ def update_formula(db: Session, category: str, equation: str, wastage_factor: fl
         if db_formula:
             db_formula.equation = equation
             db_formula.wastage_factor = wastage_factor
+            db_formula.is_colour = is_colour
             db.commit()
             db.refresh(db_formula)
             logger.info("Updated formula with category: %s", category)

@@ -55,6 +55,7 @@ class FormulaCreate(BaseModel):
     category: str
     equation: str
     wastage_factor: float
+    is_colour: bool
 
 class Formula(BaseModel):
     # created_at: Optional[datetime] = None
@@ -62,6 +63,7 @@ class Formula(BaseModel):
     category: str
     equation: str
     wastage_factor: float
+    is_colour: bool
 
     class Config:
         from_attributes = True

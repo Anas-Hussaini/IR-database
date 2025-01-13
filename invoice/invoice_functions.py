@@ -1,7 +1,7 @@
 from typing import Dict
 from sqlalchemy.orm import Session
 from app.formula.crud import get_formulas
-from app.product.crud import get_product_by_category_supplier_colour
+from app.product.crud import get_product_by_category_supplier_colour, get_product_by_category_supplier
 from app.models import WastageCondition
 import math
 import pandas as pd
@@ -47,7 +47,7 @@ def get_product_by_category_supplier_and_colour(db: Session, category: str, supp
     logger.info("Fetching product details for category=%s, supplier_id=%s, colour=%s", category, supplier_id, colour)
     product = get_product_by_category_supplier_colour(db, category=category, supplier_id=supplier_id, colour=colour)
     
-    logger.info("Retrieved product details: %s", product)
+    logger.info("Retrieved product details: %s", product.product_id)
     return {
         "product_id": product.product_id,
         "description": product.description,
@@ -56,6 +56,32 @@ def get_product_by_category_supplier_and_colour(db: Session, category: str, supp
         "supplier": product.supplier,
         "colour": product.colour
     }
+
+def get_product_by_category_and_supplier(db: Session, category: str, supplier_id: str) -> Dict[str, list]:
+    """
+    Retrieves product from the database and organizes them into a dictionary grouped by category and supplier.
+
+    :param db: SQLAlchemy database session.
+    :param category: The product category.
+    :param supplier_id: The supplier's ID.
+    :return: Dictionary containing product details.
+    """
+    logger.info("Fetching product details for category=%s, supplier_id=%s", category, supplier_id)
+    
+    # Fetch product details using the updated function
+    product = get_product_by_category_supplier(db, category=category, supplier_id=supplier_id)
+
+    logger.info("Retrieved product details: %s", product.product_id)
+    
+    return {
+        "product_id": product.product_id,
+        "description": product.description,
+        "unit_price": product.unit_price,
+        "unit": product.unit,
+        "supplier": product.supplier,
+        "colour": product.colour
+    }
+
 
 # Function to calculate wastage factors based on valleys and hips lengths
 def get_wastage_factors(db: Session, valleys_length: float, hips_length: float) -> Dict[str, float]:
@@ -93,7 +119,7 @@ def get_wastage_factors(db: Session, valleys_length: float, hips_length: float) 
     return results
 
 # Function to fetch one product for each category using the provided fetching function
-def fetch_products_by_categories(db: Session, categories: list, supplier: str, colour: str):
+def fetch_all_products(db: Session, categories_with_colour: list, categories_with_no_variation: list, supplier: str, colour: str):
     """
     Fetch one product for each category using the provided fetching function.
     
@@ -103,11 +129,24 @@ def fetch_products_by_categories(db: Session, categories: list, supplier: str, c
     :param color: Product color.
     :return: List of dictionaries containing product details.
     """
-    logger.info("Fetching products for categories=%s, supplier=%s, colour=%s", categories, supplier, colour)
+    logger.info("Fetching products for categories=%s, supplier=%s, colour=%s", categories_with_colour + categories_with_no_variation, supplier, colour)
     products = []
-    for category in categories:
+    for category in categories_with_colour:
         product = get_product_by_category_supplier_and_colour(
-            db, category=category, supplier_id=supplier, colour=colour
+            db=db, category=category, supplier_id=supplier, colour=colour
+        )
+        products.append({
+            "Product_ID": product["product_id"],
+            "Description": product["description"],
+            "Colour": product["colour"],
+            "Category": category,
+            "Supplier": product["supplier"],
+            "Unit": product["unit"],
+            "Unit_Price": product["unit_price"],
+        })
+    for category in categories_with_no_variation:
+        product = get_product_by_category_and_supplier(
+            db=db, category=category, supplier_id=supplier
         )
         products.append({
             "Product_ID": product["product_id"],
@@ -141,7 +180,7 @@ def calculate_product_quantities(formulas_by_category, data, number_of_vents: in
         "Number_of_Vents": number_of_vents,
         "Number_of_Pipe_Boots": number_of_pipe_boots,
         "shingles_wastage_factor": wastage_factors.get("Shingles", 1),
-        "caps_wastage_factor": wastage_factors.get("Caps/Hip and Ridge Shingles", 1)
+        "caps_wastage_factor": wastage_factors.get("Caps", 1)
     }
     variables.update(data)  # Add data keys
 
@@ -160,7 +199,7 @@ def calculate_product_quantities(formulas_by_category, data, number_of_vents: in
     return quantities
 
 # Function to generate the invoice DataFrame by fetching one product per category and including other details
-def generate_invoice_df(quantities: Dict[str, int], type_of_structure: str, supplier_id: str, material_delivery_date: str, installation_date: str, homeowner_email: str, drip_edge: bool, categories: list, colour: str, db: Session) -> pd.DataFrame:
+def generate_invoice_df(quantities: Dict[str, int], type_of_structure: str, supplier_id: str, material_delivery_date: str, installation_date: str, homeowner_email: str, drip_edge: bool, categories_with_colour: list, categories_with_no_variation: list, colour: str, db: Session) -> pd.DataFrame:
     """
     Generate the invoice DataFrame by fetching one product per category and including other details.
 
@@ -178,7 +217,9 @@ def generate_invoice_df(quantities: Dict[str, int], type_of_structure: str, supp
     """
     logger.info("Generating invoice DataFrame")
     # Fetch products for all categories
-    products = fetch_products_by_categories(db, categories, supplier_id, colour)
+    products = fetch_all_products(db, categories_with_colour, categories_with_no_variation, supplier_id, colour)
+    
+    logger.info("Fetched products= %s", products)
     
     # Check if fetched products exist, otherwise raise an error
     if not products:
@@ -197,9 +238,14 @@ def generate_invoice_df(quantities: Dict[str, int], type_of_structure: str, supp
         raise ValueError("The number of quantities does not match the number of fetched products.")
     
     # Add quantities and calculate total prices
-    products_df['Quantity'] = products_df.apply(lambda x: quantities.get(x['Category'], 0), axis=1)
-    products_df['Total Price'] = products_df['Quantity'] * products_df['Unit_Price']
+    logger.info("Calculating quantities and total prices")
     
+    products_df['Quantity'] = products_df.apply(lambda x: quantities.get(x['Category'], 0), axis=1)
+    logger.info("Calculated quantities:", products_df['Quantity'])
+
+    products_df['Total Price'] = products_df['Quantity'] * products_df['Unit_Price']
+    logger.info("Calculated total price:", products_df['Quantity'])
+
     # Calculate the total invoice amount
     total_invoice_amount = products_df['Total Price'].sum()
     logger.info("Calculated total invoice amount: %.2f", total_invoice_amount)

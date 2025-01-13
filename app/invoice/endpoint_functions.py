@@ -2,6 +2,7 @@ import logging
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from invoice.invoice_functions import get_formulas_by_category, get_wastage_factors, calculate_product_quantities, generate_invoice_df
+from ..formula.crud import get_categories_with_variation_type
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -9,24 +10,6 @@ logger = logging.getLogger(__name__)
 
 # Database session
 db: Session = SessionLocal()
-
-# List of product categories
-categories = [
-    "Shingles",
-    "Caps/Hip and Ridge Shingles",
-    "Shingle Starters",
-    "Sand Ice & Water Shield/Ice & Water Underlayments",
-    "Synthetic Underlayments",
-    "Roofing Nails/Coil Roofing Nails",
-    "Ridge Vent System/Hip Vents",
-    "Back Roof Vent/Ventilation",
-    "Step Flashing/Flashings",
-    "Pipe Flashing/Flashings",
-    "Roofing Staples/Staples",
-    "Construction Sealant/Adhesives, Caulks & Sealants",
-    "Dormer Flashing Sticks/Flashings",
-    "Drip Edge/Flashings"
-]
 
 def process_json_and_return_invoice_df(data, number_of_vents, number_of_pipe_boots, shingle_color, type_of_structure, supplier, material_delivery_date, installation_date, homeowner_email, drip_edge):
     """
@@ -60,6 +43,10 @@ def process_json_and_return_invoice_df(data, number_of_vents, number_of_pipe_boo
     quantities = calculate_product_quantities(formulas_by_category, data, number_of_vents, number_of_pipe_boots, wastage_factors)
     logger.debug(f"Product quantities calculated: {quantities}")
 
+    categories_with_colour, categories_with_no_variation = get_categories_with_variation_type(db)
+    logger.debug("Categories fetched | with colour variation: %s | with no variation: %s", categories_with_colour, categories_with_no_variation)
+
+    
     logger.info("Generating the invoice DataFrame.")
     products_df = generate_invoice_df(
         quantities,
@@ -69,7 +56,8 @@ def process_json_and_return_invoice_df(data, number_of_vents, number_of_pipe_boo
         installation_date,
         homeowner_email,
         drip_edge,
-        categories,
+        categories_with_colour,
+        categories_with_no_variation,
         shingle_color,
         db
     )
@@ -121,18 +109,23 @@ def process_quantities_and_return_invoice(quantities, shingle_color, type_of_str
     Returns:
     - A DataFrame representing the invoice.
     """
+    
+    categories_with_colour, categories_with_no_variation = get_categories_with_variation_type(db)
+
+    
     logger.info("Generating the invoice DataFrame.")
     invoice_df = generate_invoice_df(
-        quantities,
-        type_of_structure,
-        supplier,
-        material_delivery_date,
-        installation_date,
-        homeowner_email,
-        drip_edge,
-        categories,
-        shingle_color,
-        db
+        quantities=quantities,
+        type_of_structure=type_of_structure,
+        supplier_id=supplier,
+        material_delivery_date=material_delivery_date,
+        installation_date=installation_date,
+        homeowner_email=homeowner_email,
+        drip_edge=drip_edge,
+        categories_with_colour=categories_with_colour,
+        categories_with_no_variation=categories_with_no_variation,
+        colour=shingle_color,
+        db=db
     )
     logger.info("Invoice DataFrame generation complete.")
 

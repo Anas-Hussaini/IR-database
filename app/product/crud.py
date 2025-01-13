@@ -84,7 +84,7 @@ def get_product_by_id(db: Session, product_id: str):
         raise
 
 # Get product by category, supplier, and colour
-def get_product_by_category_supplier_colour(db: Session, category: str, supplier_id: int, colour: str):
+def get_product_by_category_supplier_colour(db: Session, category: str, supplier_id: str, colour: str):
     """
     Retrieves a product by its category, supplier, and colour.
 
@@ -108,13 +108,44 @@ def get_product_by_category_supplier_colour(db: Session, category: str, supplier
             .first()
         )
         if product:
-            logger.info("Retrieved product with category: %s, supplier_id: %d, colour: %s", category, supplier_id, colour)
+            logger.info("Retrieved product with category: %s, supplier_id: %s, colour: %s", category, supplier_id, colour)
         else:
-            logger.warning("No product found with category: %s, supplier_id: %d, colour: %s", category, supplier_id, colour)
+            logger.warning("No product found with category: %s, supplier_id: %s, colour: %s", category, supplier_id, colour)
         return product
     except Exception as e:
         logger.error("Error occurred while fetching product by category, supplier, and colour: %s", e)
         raise
+
+def get_product_by_category_supplier(db: Session, category: str, supplier_id: str):
+    """
+    Retrieves a product by its category and supplier.
+
+    Parameters:
+        db (Session): The SQLAlchemy session object.
+        category (str): The category of the product to retrieve.
+        supplier_id (int): The supplier ID of the product to retrieve.
+
+    Returns:
+        Product or None: The product object if found, otherwise None.
+    """
+    try:
+        product = (
+            db.query(Product)
+            .filter(
+                Product.category == category,
+                Product.supplier == supplier_id
+            )
+            .first()
+        )
+        if product:
+            logger.info("Retrieved product with category: %s, supplier_id: %s", category, supplier_id)
+        else:
+            logger.warning("No product found with category: %s, supplier_id: %s", category, supplier_id)
+        return product
+    except Exception as e:
+        logger.error("Error occurred while fetching product by category and supplier: %s", e)
+        raise
+
 
 # Update product by ID
 def update_product(db: Session, product_id: str, description: str, unit: str, category: str, unit_price: float, supplier: str, colour: str):

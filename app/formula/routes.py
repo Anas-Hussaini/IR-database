@@ -72,7 +72,7 @@ def get_formula(category: str, db: Session = Depends(get_db)):
 
 # Update formula by category
 @router.put("/update_formula_by_category", response_model=schemas.Formula)
-def update_formula(category: str, equation: str, wastage_factor: float, db: Session = Depends(get_db)):
+def update_formula(category: str, equation: str, wastage_factor: float, is_colour: bool, db: Session = Depends(get_db)):
     """
     Endpoint to update a formula by its category.
 
@@ -86,7 +86,7 @@ def update_formula(category: str, equation: str, wastage_factor: float, db: Sess
         Formula: The updated formula object if successful, otherwise raises HTTPException.
     """
     logger.info("Updating formula with category: %s", category)
-    db_formula = crud.update_formula(db=db, category=category, equation=equation, wastage_factor=wastage_factor)
+    db_formula = crud.update_formula(db=db, category=category, equation=equation, wastage_factor=wastage_factor, is_colour=is_colour)
     if db_formula is None:
         logger.warning("Formula not found for update with category: %s", category)
         raise HTTPException(status_code=404, detail="Formula not found")

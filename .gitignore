@@ -52,6 +52,10 @@ Thumbs.db
 all_pdf_measurement_reports/
 *__pycache__
 app-env
+foreign_env
 postgres/
 app/invoice/saved_invoices/
 app/invoice/uploaded_files/
+.git/
+project_structure.py
+project_structure.txt

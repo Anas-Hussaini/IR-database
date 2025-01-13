@@ -24,43 +24,71 @@ The project is designed for scalability, modularity, and ease of integration.
 ## Directory Structure
 
 ```plaintext
-INSURED_PROJECT/
+INSURED_ROOFS_PROJECT/
+├── .gitignore  # Specifies files and directories to be ignored by Git
+├── __init__.py  # Initializes the Python package
 │
-├── extraction/                   # Core extraction logic
-│   └── config.py                 # Configuration file for data extraction
-│   └── extract_functions.py      # Helper functions for data extraction
-│   └── extract.py                # Extract individual pdf data
-│   └── extract_all.py            # Extract all pdfs data in batch
-│   └── evaluate.py               # Script to match extracted jsons with ground truth
-│   └── truth_json                # Directory containing ground truth jsons
+├── app/  # Core application module
+│   ├── __init__.py  # Initializes the app package
+│   ├── config.py  # Configuration settings for the application
+│   ├── database.py  # Database connection and ORM models
+│   ├── formula/  # Module for formulas or calculations
+│   │   ├── __init__.py  # Initializes the formula package
+│   │   ├── crud.py  # CRUD operations for formula-related data
+│   │   └── routes.py  # API routes for formula-related endpoints
+│   │
+│   ├── invoice/  # Module for invoice management
+│   │   ├── __init__.py  # Initializes the invoice package
+│   │   ├── crud_read_only.py  # Read-only operations for invoice-related data
+│   │   ├── endpoint_functions.py  # Functions for invoice API endpoints
+│   │   ├── make_invoice.py  # Script to generate invoices
+│   │   ├── routes.py  # API routes for invoice-related endpoints
+│   │   ├── saved_invoices/  # Directory to store generated invoices
+│   │   │
+│   │   └── uploaded_files/  # Directory to handle uploaded files for invoices
+│   │
+│   ├── main.py  # Main application entry point
+│   ├── models.py  # Database models definition
+│   ├── product/  # Module for product management
+│   │   ├── __init__.py  # Initializes the product package
+│   │   ├── crud.py  # CRUD operations for product-related data
+│   │   └── routes.py  # API routes for product-related endpoints
+│   │
+│   ├── schemas.py  # Pydantic models or data schemas
+│   ├── supplier/  # Module for supplier management
+│   │   ├── __init__.py  # Initializes the supplier package
+│   │   ├── crud.py  # CRUD operations for supplier-related data
+│   │   └── routes.py  # API routes for supplier-related endpoints
+│   │
+│   └── wastage/  # Module for managing wastage data
+│       ├── __init__.py  # Initializes the wastage package
+│       ├── crud.py  # CRUD operations for wastage-related data
+│       └── routes.py  # API routes for wastage-related endpoints
 │
-├── invoice/                      # Invoice generation and evaluation
-│   ├── config_invoice.py         # Configuration file for invoice management
-│   ├── invoice_functions.py      # Helper functions for invoice processing
-│   ├── generate_invoice.py       # Generate individual invoice
-│   ├── generate_all.py           # Generate all invoices in batch
-│   ├── evaluate_invoice.py       # Script to evaluate a single invoice
-│   ├── evaluate_all.py           # Evaluate all invoices
-│   └── Data_Invoices_Manual.csv  # Data handling for invoices
+├── config.py  # General project configuration file
+├── extraction/  # Module for data extraction
+│   ├── __init__.py  # Initializes the extraction package
+│   ├── config.py  # Configuration file for data extraction settings
+│   ├── evaluate.py  # Script to evaluate extracted data
+│   ├── extract.py  # Script to extract individual PDF data
+│   ├── extract_all.py  # Script to extract all PDF data in batch
+│   ├── extract_functions.py  # Helper functions for data extraction
+│   └── truth_json/  # Directory containing ground truth JSON files
 │
-├── process_raw_data/             # Preprocessing and cleaning raw PDF data
-│   ├── classify_pdfs.py          # Classify PDFs for processing
-│   ├── match_files.py            # Match files for extraction
-│   └── remove_unwanted.py        # Remove unwanted data or files
+├── invoice/  # Module for invoice management
+│   ├── __init__.py  # Initializes the invoice package
+│   ├── config_invoice.py  # Configuration file for invoice management
+│   ├── generate_all.py  # Script to generate all invoices in batch
+│   └── invoice_functions.py  # Helper functions for invoice processing
 │
-├── raw_data/                     # Raw data input directory (drive data to be downloaded here)
+├── process_raw_data/  # Module for preprocessing and cleaning raw PDF data
+│   ├── classify_pdfs.py  # Script to classify PDFs for processing
+│   ├── match_files.py  # Script to match files for extraction
+│   └── remove_unwanted_files.py  # Script to remove unwanted files or data
 │
-├── endpoint/                     # FastAPI endpoint for file uploads and processing
-│   ├── config.py                 # Configuration file for FastAPI
-│   ├── extract_functions.py      # Functions for data extraction
-│   ├── extract.py                # Script for data extraction
-│   ├── invoice_functions.py      # Functions to handle invoice creation
-│   ├── make_invoice.py           # Script to generate invoices
-│   └── fast_api.py               # FastAPI server setup
-│   
-├── .env                          # Environment variables file
-├── .gitignore                    # Git ignore file for version control
-└── requirements.txt              # File containing list of required packages
+├── readme.md  # Project documentation file
+└── requirements.txt  # List of required packages for the project
+
 
 ```
 ---
@@ -125,14 +153,9 @@ Run extraction\extract_all.py to extract measurement data in json format from al
 
 To run the service, navigate to the project root directory and use one of the following commands:
 
-1. Using Python's module runner:
+1. Using Uvicorn:
   ```bash
-   python -m endpoint.fast_api
+  uvicorn app.main:app --reload
   ```
 
-2. Using Uvicorn:
-  ```bash
-  uvicorn endpoint.fast_api:app --host 127.0.0.1 --port 8000
-  ```
-
-  - Go to "localhost:8000/docs" and test the endpoint by uploading measurement report pdf and enter the required inputs.
+  - Go to "localhost:8000/docs" and test the endpoint enter the required inputs.
