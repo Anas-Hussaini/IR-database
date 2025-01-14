@@ -4,5 +4,5 @@
 4,Shingles,ValleysLength_ft > 0 and HipsLength_ft > 0 and Total_Valleys_Hips_Length_ft > 40,1.2
 5,Shingles,ValleysLength_ft == 0 and HipsLength_ft > 0 and HipsLength_ft > 0,1.2
 6,Shingles,ValleysLength_ft == 0 and HipsLength_ft == 0,1
-7,Caps/Hip and Ridge Shingles,HipsLength_ft > 0,1.2
-8,Caps/Hip and Ridge Shingles,HipsLength_ft == 0,1.15
+7,Caps,HipsLength_ft > 0,1.2
+8,Caps,HipsLength_ft == 0,1.15
