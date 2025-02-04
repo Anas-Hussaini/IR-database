@@ -74,3 +74,22 @@ log_config = {
         },
     },
 }
+
+
+# Order_Config
+BEACON_LOGIN_TIME_LIMIT = 30 #minutes
+ACCOUNT_ID = os.getenv("BEACON_ACCOUNT_ID")
+API_SITE_ID = os.getenv("BEACON_API_SITE_ID")
+SHIPPING_BRANCH = "528"
+
+# API Credentials
+BEACON_USERNAME = os.getenv("BEACON_USERNAME")
+BEACON_PASSWORD = os.getenv("BEACON_PASSWORD")
+SITE_ID = "homeSite"
+PERSISTENT_LOGIN_TYPE = "RememberMe"
+USER_AGENT = "desktop"
+API_SITE_ID = os.getenv("BEACON_API_SITE_ID")
+
+# Tax Percentage AND OTHER CHARGES
+TAX_PERCENTAGE = 8.5493
+OTHER_CHARGES = 100

@@ -48,6 +48,7 @@ Thumbs.db
 *.mov
 *.wmv
 *.env
+*.csv
 
 all_pdf_measurement_reports/
 *__pycache__
@@ -59,3 +60,5 @@ app/invoice/uploaded_files/
 .git/
 project_structure.py
 project_structure.txt
+app/order/saved_csvs
+app/order/downloads

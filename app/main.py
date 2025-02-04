@@ -12,6 +12,7 @@ from .supplier import routes as supplier_routes
 from .formula import routes as formula_routes
 from .wastage import routes as wastage_condition_routes
 from .invoice import routes as invoice_routes
+from .order import routes as order_routes
 
 # Apply the logging configuration
 dictConfig(log_config)
@@ -33,6 +34,7 @@ app.include_router(supplier_routes.router, prefix="/api", tags=["suppliers"])
 app.include_router(formula_routes.router, prefix="/api", tags=["formulae"])
 app.include_router(wastage_condition_routes.router, prefix="/api", tags=["wastage_conditions"])
 app.include_router(invoice_routes.router, prefix="/api", tags=["invoice"])
+app.include_router(order_routes.router, prefix="/api", tags=["order"])
 
 @app.on_event("startup")
 async def startup_event():
