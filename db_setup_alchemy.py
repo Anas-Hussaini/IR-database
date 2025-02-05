@@ -29,7 +29,7 @@ TABLE_COLUMNS = {
         "supplier_id", "name", "warehouse", "contact_number", "po_box", "vendor_address"
     ],
     "formulae": [
-        "category", "equation", "wastage_factor"
+        "category", "equation", "wastage_factor", "is_colour"
     ],
     "wastage_conditions": [
         "wastage_factor_id", "category", "wastage_condition", "wastage_factor"
@@ -81,7 +81,8 @@ def insert_data(session, table_name, df):
             Formula(
                 category=row["category"],
                 equation=row["equation"],
-                wastage_factor=row["wastage_factor"]
+                wastage_factor=row["wastage_factor"],
+                is_colour=(row["is_colour"].strip().lower() == 't')  # Convert 't' to True, 'f' to False
             ) for index, row in df.iterrows()
         ]
         session.add_all(formulae)

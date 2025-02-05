@@ -1,14 +1,14 @@
-Shingles,(wastage_factor*TotalRoofArea_sqft/100)*3,1
-Caps/Hip and Ridge Shingles,(wastage_factor*RidgesHipsLength_ft)/25,1
-Shingle Starters,(EavesRakesLength_ft)/100,1
-Sand Ice & Water Shield/Ice & Water Underlayments,(EavesLength_ft+ValleysLength_ft)/33,1
-Synthetic Underlayments,(wastage_factor*TotalRoofArea_sqft/100)/10,1
-Roofing Nails/Coil Roofing Nails,(TotalRoofArea_sqft/100)/18,1
-Ridge Vent System/Hip Vents,(RidgesLength_ft)/4,1
-Back Roof Vent/Ventilation,Number_of_Vents,1
-Step Flashing/Flashings,(StepFlashingLength_ft)/60,1
-Pipe Flashing/Flashings,Number_of_Pipe_Boots,1
-Roofing Staples/Staples,(TotalRoofArea_sqft/100)/8,1
-"Construction Sealant/Adhesives, Caulks & Sealants",((TotalRoofArea_sqft/100)/8)+1,1
-Dormer Flashing Sticks/Flashings,(WallFlashingLength_ft)/10,1
-Drip Edge/Flashings,(Rakes)/10,1
+Shingle Starters,(EavesRakesLength_ft)/100,1,f
+Sand Ice & Water Shield,(EavesLength_ft+ValleysLength_ft)/33,1,f
+Coil Roofing Nails,(TotalRoofArea_sqft/100)/18,1,f
+Ridge Vent System,(RidgesLength_ft)/4,1,f
+Back Roof Vent,Number_of_Vents,1,f
+Step Flashing,(StepFlashingLength_ft)/60,1,f
+Pipe Flashing,Number_of_Pipe_Boots,1,f
+Roofing Staples,(TotalRoofArea_sqft/100)/8,1,f
+Construction Sealant,((TotalRoofArea_sqft/100)/8)+1,1,f
+Dormer Flashing Sticks,(WallFlashingLength_ft)/10,1,f
+Drip Edge,(RakesLength_ft)/10,1,f
+Caps,(caps_wastage_factor*RidgesHipsLength_ft)/25,1,t
+Shingles,(shingles_wastage_factor*TotalRoofArea_sqft/100)*3,1,t
+Synthetic Underlayments,(shingles_wastage_factor*TotalRoofArea_sqft/100)/10,1,f
