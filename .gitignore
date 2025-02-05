@@ -62,4 +62,3 @@ project_structure.py
 project_structure.txt
 app/order/downloads
 app/order/saved_csvs
-invoice(5).csv
