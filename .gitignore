@@ -59,6 +59,10 @@ app/invoice/saved_invoices/
 app/invoice/uploaded_files/
 .git/
 project_structure.py
+<<<<<<< HEAD
 project_structure.txt
 app/order/saved_csvs
 app/order/downloads
+=======
+project_structure.txt
+>>>>>>> 0b611b5a2892ace08b23ee8aff713d4b4b056a27

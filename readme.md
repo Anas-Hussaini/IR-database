@@ -47,6 +47,7 @@ INSURED_ROOFS_PROJECT/
 │   │   │
 │   │   └── uploaded_files/  # Directory to handle uploaded files for invoices
 │   │
+<<<<<<< HEAD
 │   ├── order/                       # Main module or package for order-related functionality.
 │   │   ├── __init__.py              # Initializes the 'order' package, allows importing modules from it.
 │   │   ├── functions.py             # Contains reusable utility functions for order-related utilities.
@@ -55,6 +56,8 @@ INSURED_ROOFS_PROJECT/
 │   │   ├── downloads/               # Directory for temporary or processed files for download purposes.
 │   │   └── saved_csvs/              # Directory to store saved CSV files related to orders (e.g., exports, reports).
 │   │
+=======
+>>>>>>> 0b611b5a2892ace08b23ee8aff713d4b4b056a27
 │   ├── main.py  # Main application entry point
 │   ├── models.py  # Database models definition
 │   ├── product/  # Module for product management
