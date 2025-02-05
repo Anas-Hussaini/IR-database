@@ -257,14 +257,11 @@ def review_order(df: pd.DataFrame):
 
         sub_total = invoice_df["Total Price"].sum()
         logger.info(f"Order subtotal calculated: {sub_total}.")
-
+        
         sub_total_after_charges = sub_total + OTHER_CHARGES
         logger.info(f"Subtotal after other charges: {sub_total_after_charges}.")
 
-        tax = sub_total_after_charges * (TAX_PERCENTAGE / 100)
-        logger.info(f"Tax calculated: {tax}.")
-
-        total_invoice_amount = sub_total_after_charges + tax
+        total_invoice_amount = sub_total_after_charges
         logger.info(f"Total invoice amount: {total_invoice_amount}.")
 
         # Add additional fields as separate rows
@@ -272,8 +269,8 @@ def review_order(df: pd.DataFrame):
             "Material Delivery Date": material_delivery_date,
             "Order Subtotal": sub_total,
             "Other Charges": OTHER_CHARGES,
-            "Tax": tax,
-            "Total Invoice Amount": total_invoice_amount,
+            "Tax":" Not Applied Yet",
+            "Total Invoice Amount": f"{total_invoice_amount} + tax",
         }
 
         for key, value in additional_fields.items():

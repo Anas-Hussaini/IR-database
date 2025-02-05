@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from fastapi import APIRouter, File, UploadFile, Form, HTTPException, Body
 from fastapi.responses import FileResponse
 from datetime import date
@@ -46,6 +46,13 @@ class ShingleColor(str, Enum):
     PewterGray = "Pewter Gray"
     Hickory = "Hickory"
     Shakewood = "Shakewood"
+
+# Helper function to normalize the shingle color
+def normalize_shingle_color(color: ShingleColor) -> str:
+    # If the color is 'Default', treat it as 'Charcoal'
+    if color == ShingleColor.Default:
+        return ShingleColor.Charcoal.value
+    return color.value
 
 class StructureType(str, Enum):
     Normal = "Normal"
@@ -97,12 +104,15 @@ async def get_invoice(
             f.write(await file.read())
         logging.info(f"File saved at: {save_path}")
         
+        # Normalize the shingle color (treat 'Default' as 'Charcoal')
+        normalized_shingle_color = normalize_shingle_color(shingle_color)
+        
         # Process and generate invoices
         invoice_df = process_pdf_and_return_invoice(
             pdf_path=save_path,
             number_of_vents=number_of_vents,
             number_of_pipe_boots=number_of_pipe_boots,
-            shingle_color=shingle_color.value,
+            shingle_color=normalized_shingle_color,
             type_of_structure=type_of_structure.value,
             supplier=supplier.value,
             material_delivery_date=str(material_delivery_date),
@@ -137,7 +147,7 @@ async def get_invoice(
         )
 
 # Endpoint to extract data from PDF reports and return the extracted data
-@router.post("/generate-invoice-with-only-data/")
+@router.post("/extract-data-from-pdf-report/")
 async def extract_data_from_pdf_report(file: UploadFile = File(...)):
     """
     Process the uploaded file, extract measurement data, and return it.
@@ -212,12 +222,15 @@ async def get_invoice_with_data_only(
             "WallFlashingLength_ft": WallFlashingLength_ft
         }
         
+        # Normalize the shingle color (treat 'Default' as 'Charcoal')
+        normalized_shingle_color = normalize_shingle_color(shingle_color)
+        
         # Process and generate invoices
         invoice_df = process_json_and_return_invoice_df(
             data=data, 
             number_of_vents=number_of_vents,
             number_of_pipe_boots=number_of_pipe_boots,
-            shingle_color=shingle_color.value,
+            shingle_color=normalized_shingle_color,
             type_of_structure=type_of_structure.value,
             supplier=supplier.value,
             material_delivery_date=str(material_delivery_date),
@@ -347,10 +360,13 @@ async def process_quantities_and_generate_invoice(
             "Synthetic Underlayments": synthetic_underlayments
         }
         
+        # Normalize the shingle color (treat 'Default' as 'Charcoal')
+        normalized_shingle_color = normalize_shingle_color(shingle_color)
+        
         # Process quantities and generate invoices
         invoice_df = process_quantities_and_return_invoice(
             quantities=quantities,
-            shingle_color=shingle_color.value,
+            shingle_color=normalized_shingle_color,
             type_of_structure=type_of_structure.value,
             supplier=supplier.value,
             material_delivery_date=str(material_delivery_date),

@@ -61,7 +61,7 @@ async def submit_order(file: UploadFile = File(...)):
         )
 
 
-@router.get("/review-order/")
+@router.post("/review-order/")
 async def process_review_order(file: UploadFile = File(...)):
     """
     Process the uploaded CSV file, generate the order review, and return a downloadable CSV with the results.
