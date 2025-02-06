@@ -1,5 +1,5 @@
 from extraction.extract import process_pdf
-from .endpoint_functions import process_json_and_return_invoice_df
+from .endpoint_functions import process_json_and_return_invoice_json
 import logging
 
 # Configure logging
@@ -8,32 +8,32 @@ logger = logging.getLogger(__name__)
 
 def process_pdf_and_return_invoice(pdf_path, number_of_vents, number_of_pipe_boots, shingle_color, type_of_structure, supplier, material_delivery_date, installation_date, homeowner_email, drip_edge):
     """
-    Process the given PDF, extract relevant data, and generate an invoice DataFrame.
+    Process the given PDF, extract relevant data, and generate an invoice JSON object.
 
     Args:
-    - pdf_path: Path to the PDF file to be processed.
-    - number_of_vents: Number of vents to be included.
-    - number_of_pipe_boots: Number of pipe boots to be included.
-    - shingle_color: Color of the shingles.
-    - type_of_structure: Type of the structure (e.g., Normal, Complex).
-    - supplier: ID or name of the supplier.
-    - material_delivery_date: Date when materials are expected to be delivered.
-    - installation_date: Date when the installation is planned.
-    - homeowner_email: Email address of the homeowner.
-    - drip_edge: Boolean indicating if drip edge is included.
+    - pdf_path (str): Path to the PDF file to be processed.
+    - number_of_vents (int): Number of vents to be included in the invoice.
+    - number_of_pipe_boots (int): Number of pipe boots to be included in the invoice.
+    - shingle_color (str): Color of the shingles to be used.
+    - type_of_structure (str): Type of the structure (e.g., Normal, Complex).
+    - supplier (str): Name or ID of the material supplier.
+    - material_delivery_date (str): Date when the materials will be delivered (format: MM/DD/YYYY).
+    - installation_date (str): Date when the installation is scheduled (format: MM/DD/YYYY).
+    - homeowner_email (str): Email address of the homeowner for correspondence.
+    - drip_edge (bool): Whether a drip edge is included (True or False).
 
     Returns:
-    - A DataFrame representing the invoice.
+    - dict: A JSON object representing the invoice data.
     """
     logger.info(f"Processing PDF file: {pdf_path}")
     
-    # Extract data from PDF
+    # Extract data from the provided PDF file
     data = process_pdf(pdf_path)
     logger.debug(f"Extracted data from PDF: {data}")
     
-    # Generate invoice DataFrame from the extracted data
-    logger.info("Generating invoice DataFrame.")
-    invoice_df = process_json_and_return_invoice_df(
+    # Generate invoice JSON from the extracted data and additional parameters
+    logger.info("Generating invoice JSON object.")
+    invoice_json = process_json_and_return_invoice_json(
         data, 
         number_of_vents, 
         number_of_pipe_boots, 
@@ -45,22 +45,25 @@ def process_pdf_and_return_invoice(pdf_path, number_of_vents, number_of_pipe_boo
         homeowner_email, 
         drip_edge
     )
-    logger.info("Invoice DataFrame generation complete.")
+    logger.info("Invoice JSON generation complete.")
 
-    return invoice_df
+    return invoice_json
 
-# Example Usage:
-# number_of_vents=2
-# number_of_pipe_boots=3
-# shingle_color="Default"
-# type_of_structure="Normal"
-# supplier="BEACON"
-# material_delivery_date="9/12/2024"
-# installation_date="19/12/2024"
-# homeowner_email="homeowner@gmail.com"
-# drip_edge=True
+# Example usage:
+# Parameters for generating the invoice
+# number_of_vents = 2
+# number_of_pipe_boots = 3
+# shingle_color = "Default"
+# type_of_structure = "Normal"
+# supplier = "BEACON"
+# material_delivery_date = "09/12/2024"
+# installation_date = "09/19/2024"
+# homeowner_email = "homeowner@gmail.com"
+# drip_edge = True
 # pdf_path = "app/invoice/uploaded_files/24_lakeside_drive_stafford_va_22554.pdf"
 
-# invoice_df = process_pdf_and_return_invoice(pdf_path, number_of_vents, number_of_pipe_boots, shingle_color, type_of_structure, supplier, material_delivery_date, installation_date, homeowner_email, drip_edge)
+# Generate the invoice JSON object
+# invoice_json = process_pdf_and_return_invoice(pdf_path, number_of_vents, number_of_pipe_boots, shingle_color, type_of_structure, supplier, material_delivery_date, installation_date, homeowner_email, drip_edge)
 
-# print(invoice_df)
+# Print the invoice JSON object
+# print(invoice_json)

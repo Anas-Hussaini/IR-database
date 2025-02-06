@@ -86,4 +86,27 @@ class WastageCondition(BaseModel):
 
     class Config:
         from_attributes = True
-        
+
+class InvoiceDetail(BaseModel):
+    Product_ID: str
+    Description: str
+    Colour: str
+    Category: str
+    Supplier: str
+    Unit: str
+    Unit_Price: float
+    Quantity: int
+    Total_Price: float
+
+class Summary(BaseModel):
+    Type_of_Structure: str
+    Supplier: str
+    Material_Delivery_Date: str
+    Installation_Date: str
+    Homeowner_Email: str
+    Drip_Edge: bool
+    Total_Invoice_Amount: float
+
+class OrderData(BaseModel):
+    Invoice_Details: list[InvoiceDetail]
+    Summary: Summary

@@ -199,7 +199,7 @@ def calculate_product_quantities(formulas_by_category, data, number_of_vents: in
     return quantities
 
 # Function to generate the invoice DataFrame by fetching one product per category and including other details
-def generate_invoice_df(quantities: Dict[str, int], type_of_structure: str, supplier_id: str, material_delivery_date: str, installation_date: str, homeowner_email: str, drip_edge: bool, categories_with_colour: list, categories_with_no_variation: list, colour: str, db: Session) -> pd.DataFrame:
+def generate_invoice_json(quantities: Dict[str, int], type_of_structure: str, supplier_id: str, material_delivery_date: str, installation_date: str, homeowner_email: str, drip_edge: bool, categories_with_colour: list, categories_with_no_variation: list, colour: str, db: Session) -> pd.DataFrame:
     """
     Generate the invoice DataFrame by fetching one product per category and including other details.
 
@@ -226,117 +226,59 @@ def generate_invoice_df(quantities: Dict[str, int], type_of_structure: str, supp
         raise ValueError("No products fetched for the given categories, supplier, and color.")
     
     # Convert the fetched product data into a DataFrame
-    products_df = pd.DataFrame(products)
+    # products_df = pd.DataFrame(products)
     
-    # If fetched products dataframe is empty, return an empty DataFrame
-    if products_df.empty:
-        logger.warning("No products fetched, returning an empty DataFrame")
-        return pd.DataFrame()
+    # # If fetched products dataframe is empty, return an empty DataFrame
+    # if products_df.empty:
+    #     logger.warning("No products fetched, returning an empty DataFrame")
+    #     return pd.DataFrame()
     
     # Ensure the quantities provided match the number of fetched product categories
-    if len(quantities) != len(products_df):
+    if len(quantities) != len(products):
         raise ValueError("The number of quantities does not match the number of fetched products.")
     
     # Add quantities and calculate total prices
     logger.info("Calculating quantities and total prices")
     
-    products_df['Quantity'] = products_df.apply(lambda x: quantities.get(x['Category'], 0), axis=1)
-    logger.info("Calculated quantities:", products_df['Quantity'])
-
-    products_df['Total Price'] = products_df['Quantity'] * products_df['Unit_Price']
-    logger.info("Calculated total price:", products_df['Quantity'])
-
-    # Calculate the total invoice amount
-    total_invoice_amount = products_df['Total Price'].sum()
-    logger.info("Calculated total invoice amount: %.2f", total_invoice_amount)
+    invoice_details = []
+    total_invoice_amount = 0
     
-    # Add additional fields as separate rows
+    for product in products:
+        category = product['Category']
+        quantity = quantities.get(category, 0)
+        total_price = quantity * product['Unit_Price']
+        total_invoice_amount += total_price
+    
+        invoice_details.append({
+            "Product_ID": product["Product_ID"],
+            "Description": product["Description"],
+            "Colour": product["Colour"],
+            "Category": category,
+            "Supplier": product["Supplier"],
+            "Unit": product["Unit"],
+            "Unit_Price": product['Unit_Price'],
+            "Quantity": quantity,
+            "Total_Price": total_price,
+        })
+    
+    # Add additional fields as separate entries
     additional_fields = {
-        "Type of Structure": type_of_structure,
+        "Type_of_Structure": type_of_structure,
         "Supplier": supplier_id,
-        "Material Delivery Date": material_delivery_date,
-        "Installation Date": installation_date,
-        "Homeowner Email": homeowner_email,
-        "Drip Edge": drip_edge,
-        "Total Invoice Amount": total_invoice_amount,
+        "Material_Delivery_Date": material_delivery_date,
+        "Installation_Date": installation_date,
+        "Homeowner_Email": homeowner_email,
+        "Drip_Edge": drip_edge,
+        "Total_Invoice_Amount": total_invoice_amount,
     }
     
-    for key, value in additional_fields.items():
-        products_df.loc[len(products_df)] = ['', '', '', '', '', '', '', key, value]
-        
-    logger.info("Generated invoice DataFrame with %d rows", len(products_df))
-    return products_df
+    # Combine item details and additional fields
+    invoice_response = {
+        "Invoice_Details": invoice_details,
+        "Summary": additional_fields
+    }
 
 
-# # Example Usage:
-# type_of_structure = "Normal"
-# supplier_id = "BEACON"
-# material_delivery_date = "string"
-# installation_date = "string"
-# homeowner_email = "string"
-# drip_edge = True
-# categories = [
-#     "Shingles",
-#     "Caps/Hip and Ridge Shingles",
-#     "Shingle Starters",
-#     "Sand Ice & Water Shield/Ice & Water Underlayments",
-#     "Synthetic Underlayments",
-#     "Roofing Nails/Coil Roofing Nails",
-#     "Ridge Vent System/Hip Vents",
-#     "Back Roof Vent/Ventilation",
-#     "Step Flashing/Flashings",
-#     "Pipe Flashing/Flashings",
-#     "Roofing Staples/Staples",
-#     "Construction Sealant/Adhesives, Caulks & Sealants",
-#     "Dormer Flashing Sticks/Flashings",
-#     "Drip Edge/Flashings"
-# ]
-# colour = "Default"
+    logger.info("Generated invoice JSON with %d entries", len(invoice_details))
+    return invoice_response
 
-# from app.database import SessionLocal
-
-# # Assuming `SessionLocal` is your database session factory
-# db: Session = SessionLocal()
-
-# # Retrieve formulas and wastage factors from the database
-# formulas_by_category = get_formulas_by_category(db)
-# valleys_length = 35
-# hips_length = 5
-# wastage_factors = get_wastage_factors(db, valleys_length, hips_length)
-
-# data = {
-#     "Address": "Complete address of the property",
-#     "TotalRoofArea_sqft": 2200,
-#     "RidgesHipsLength_ft": 46,
-#     "ValleysLength_ft": 22,
-#     "RidgesLength_ft": 32,
-#     "HipsLength_ft": 14,
-#     "RakesLength_ft": 15,
-#     "EavesLength_ft": 16,
-#     "EavesRakesLength_ft": 31,
-#     "StepFlashingLength_ft": 9,
-#     "WallFlashingLength_ft": 10
-# }
-
-# number_of_vents = 2
-# number_of_pipe_boots = 3
-# # Calculate product quantities
-# quantities = calculate_product_quantities(formulas_by_category, data, number_of_vents, number_of_pipe_boots, wastage_factors)
-
-# # Generate the invoice DataFrame
-# products_df = generate_invoice_df(
-#     quantities,
-#     type_of_structure,
-#     supplier_id,
-#     material_delivery_date,
-#     installation_date,
-#     homeowner_email,
-#     drip_edge,
-#     categories,
-#     colour,
-#     db
-# )
-
-# # Print the DataFrame and save it as CSV
-# print(products_df)
-# products_df.to_csv("test_invoice.csv")

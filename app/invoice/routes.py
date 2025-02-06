@@ -8,7 +8,7 @@ from datetime import date
 from enum import Enum
 from .make_invoice import process_pdf_and_return_invoice
 from extraction.extract import process_pdf
-from .endpoint_functions import process_json_and_return_invoice_df, process_measurement_data_and_calculate_product_quantities, process_quantities_and_return_invoice
+from .endpoint_functions import process_json_and_return_invoice_json, process_measurement_data_and_calculate_product_quantities, process_quantities_and_return_invoice
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -78,37 +78,38 @@ class RoofDataModel(BaseModel):
     StepFlashingLength_ft: float
     WallFlashingLength_ft: float
 
-# Endpoint to process uploaded file, generate invoices, and return a downloadable CSV
+# Endpoint to process an uploaded PDF file, generate invoices, and return a downloadable CSV response.
 @router.post("/get-invoice/")
 async def get_invoice(
-    file: UploadFile = File(...),
-    number_of_vents: int = Form(...),
-    number_of_pipe_boots: int = Form(...),
-    shingle_color: ShingleColor = Form(...),
-    type_of_structure: StructureType = Form(...),
-    supplier: Supplier = Form(...),
-    material_delivery_date: date = Form(...),
-    installation_date: date = Form(...),
-    homeowner_email: str = Form(...),
-    drip_edge: bool = Form(...)
+    file: UploadFile = File(...),  # Uploaded PDF file containing the necessary data.
+    number_of_vents: int = Form(...),  # Number of vents to include in the invoice.
+    number_of_pipe_boots: int = Form(...),  # Number of pipe boots to include in the invoice.
+    shingle_color: ShingleColor = Form(...),  # Selected shingle color for the roof.
+    type_of_structure: StructureType = Form(...),  # Type of structure (e.g., residential, commercial).
+    supplier: Supplier = Form(...),  # Supplier for the materials.
+    material_delivery_date: date = Form(...),  # Delivery date for the materials.
+    installation_date: date = Form(...),  # Installation date for the roof.
+    homeowner_email: str = Form(...),  # Email address of the homeowner.
+    drip_edge: bool = Form(...)  # Whether a drip edge is included (True/False).
 ):
     """
-    Process the uploaded file, generate invoices, and return a downloadable CSV.
+    Processes an uploaded PDF file to extract data, generates an invoice in JSON format, 
+    and returns the details as a downloadable CSV file.
     """
     try:
         logging.info(f"Received PDF report file: {file.filename}")
         
-        # Save the uploaded file
+        # Save the uploaded file to the server
         save_path = os.path.join(UPLOAD_DIR, file.filename)
         with open(save_path, "wb") as f:
             f.write(await file.read())
         logging.info(f"File saved at: {save_path}")
         
-        # Normalize the shingle color (treat 'Default' as 'Charcoal')
+        # Normalize the shingle color (e.g., 'Default' is treated as 'Charcoal')
         normalized_shingle_color = normalize_shingle_color(shingle_color)
         
-        # Process and generate invoices
-        invoice_df = process_pdf_and_return_invoice(
+        # Process the PDF file and generate an invoice in JSON format
+        invoice_json = process_pdf_and_return_invoice(
             pdf_path=save_path,
             number_of_vents=number_of_vents,
             number_of_pipe_boots=number_of_pipe_boots,
@@ -121,23 +122,14 @@ async def get_invoice(
             drip_edge=drip_edge,
         )
         
-        logging.info(f"Successfully processed file: {save_path}")
+        logging.info(f"Successfully processed the file: {save_path}")
         
-        # Save the DataFrame to a uniquely named CSV file
-        csv_file_path = get_unique_filename(DOWNLOAD_DIR, "invoice")
-        invoice_df.to_csv(csv_file_path, index=False)
-        logging.info(f"CSV file saved at: {csv_file_path}")
-        
-        # Delete the uploaded file after processing
+        # Remove the uploaded file from the server after processing to free up space
         os.remove(save_path)
         logging.info(f"Uploaded file deleted: {save_path}")
         
-        # Return the file response
-        return FileResponse(
-            path=csv_file_path,
-            media_type="text/csv",
-            filename=os.path.basename(csv_file_path)
-        )
+        # Return the generated invoice data as a response
+        return invoice_json
     
     except Exception as e:
         logging.error(f"Error processing file {file.filename}: {str(e)}")
@@ -146,30 +138,32 @@ async def get_invoice(
             detail=f"Failed to process the file: {str(e)}"
         )
 
-# Endpoint to extract data from PDF reports and return the extracted data
+
+# Endpoint to upload a PDF report, extract measurement data, and return the extracted data.
 @router.post("/extract-data-from-pdf-report/")
-async def extract_data_from_pdf_report(file: UploadFile = File(...)):
+async def extract_data_from_pdf_report(file: UploadFile = File(...)):  
     """
-    Process the uploaded file, extract measurement data, and return it.
+    Processes an uploaded PDF report, extracts measurement data from it, 
+    and returns the extracted data as a JSON response.
     """
     try:
         logging.info(f"Received PDF report file: {file.filename}")
         
-        # Save the uploaded file
+        # Save the uploaded file to the server's upload directory
         save_path = os.path.join(UPLOAD_DIR, file.filename)
         with open(save_path, "wb") as f:
             f.write(await file.read())
         logging.info(f"File saved at: {save_path}")
         
-        # Process and extract measurement data
+        # Extract measurement data from the saved PDF file
         extracted_data = process_pdf(pdf_path=save_path)
+        logging.info(f"Successfully processed the file: {save_path}")
         
-        logging.info(f"Successfully processed file: {save_path}")
-        
-        # Delete the uploaded file after processing
+        # Remove the uploaded file from the server to free up storage space
         os.remove(save_path)
         logging.info(f"Uploaded file deleted: {save_path}")
         
+        # Return the extracted data as a response
         return extracted_data
     
     except Exception as e:
@@ -179,35 +173,36 @@ async def extract_data_from_pdf_report(file: UploadFile = File(...)):
             detail=f"Failed to process the file: {str(e)}"
         )
 
-# Endpoint to process extracted data and generate invoices from it
+# Endpoint to generate invoices from provided extracted data without requiring a PDF upload.
 @router.post("/get-invoice-with-data-only/")
 async def get_invoice_with_data_only(
-    Address: str = Form(...),
-    TotalRoofArea_sqft: float = Form(...),
-    RidgesHipsLength_ft: float = Form(...),
-    ValleysLength_ft: float = Form(...),
-    RidgesLength_ft: float = Form(...),
-    HipsLength_ft: float = Form(...),
-    RakesLength_ft: float = Form(...),
-    EavesLength_ft: float = Form(...),
-    EavesRakesLength_ft: float = Form(...),
-    StepFlashingLength_ft: float = Form(...),
-    WallFlashingLength_ft: float = Form(...),
-    number_of_vents: int = Form(...),
-    number_of_pipe_boots: int = Form(...),
-    shingle_color: ShingleColor = Form(...),
-    type_of_structure: StructureType = Form(...),
-    supplier: Supplier = Form(...),
-    material_delivery_date: date = Form(...),
-    installation_date: date = Form(...),
-    homeowner_email: str = Form(...),
-    drip_edge: bool = Form(...)
+    Address: str = Form(...),  # Address of the property for the invoice.
+    TotalRoofArea_sqft: float = Form(...),  # Total roof area in square feet.
+    RidgesHipsLength_ft: float = Form(...),  # Total length of ridges and hips in feet.
+    ValleysLength_ft: float = Form(...),  # Total length of valleys in feet.
+    RidgesLength_ft: float = Form(...),  # Total length of ridges in feet.
+    HipsLength_ft: float = Form(...),  # Total length of hips in feet.
+    RakesLength_ft: float = Form(...),  # Total length of rakes in feet.
+    EavesLength_ft: float = Form(...),  # Total length of eaves in feet.
+    EavesRakesLength_ft: float = Form(...),  # Combined length of eaves and rakes in feet.
+    StepFlashingLength_ft: float = Form(...),  # Total length of step flashing in feet.
+    WallFlashingLength_ft: float = Form(...),  # Total length of wall flashing in feet.
+    number_of_vents: int = Form(...),  # Number of vents required.
+    number_of_pipe_boots: int = Form(...),  # Number of pipe boots required.
+    shingle_color: ShingleColor = Form(...),  # Selected shingle color for the roof.
+    type_of_structure: StructureType = Form(...),  # Type of structure (e.g., residential, commercial).
+    supplier: Supplier = Form(...),  # Supplier for the materials.
+    material_delivery_date: date = Form(...),  # Delivery date for the materials.
+    installation_date: date = Form(...),  # Scheduled installation date.
+    homeowner_email: str = Form(...),  # Email address of the homeowner.
+    drip_edge: bool = Form(...)  # Whether a drip edge is included (True/False).
 ):
     """
-    Process extracted data, generate invoices, and return a downloadable CSV.
+    Processes the provided extracted data, generates an invoice in JSON format, 
+    and returns the details for download as a CSV file.
     """
     try:
-        # Construct the data dictionary
+        # Construct a dictionary to hold the roof and flashing data
         data = {
             "Address": Address,
             "TotalRoofArea_sqft": TotalRoofArea_sqft,
@@ -222,11 +217,11 @@ async def get_invoice_with_data_only(
             "WallFlashingLength_ft": WallFlashingLength_ft
         }
         
-        # Normalize the shingle color (treat 'Default' as 'Charcoal')
+        # Normalize the shingle color (e.g., treat 'Default' as 'Charcoal')
         normalized_shingle_color = normalize_shingle_color(shingle_color)
         
-        # Process and generate invoices
-        invoice_df = process_json_and_return_invoice_df(
+        # Generate invoice JSON using the provided data
+        invoice_json = process_json_and_return_invoice_json(
             data=data, 
             number_of_vents=number_of_vents,
             number_of_pipe_boots=number_of_pipe_boots,
@@ -239,18 +234,10 @@ async def get_invoice_with_data_only(
             drip_edge=drip_edge,
         )
         
-        logging.info("Successfully processed the extracted data and generated invoice")
+        logging.info("Successfully processed the extracted data and generated the invoice.")
         
-        # Save the DataFrame to a uniquely named CSV file
-        csv_file_path = get_unique_filename(DOWNLOAD_DIR, "invoice")
-        invoice_df.to_csv(csv_file_path, index=False)
-        logging.info(f"CSV file saved at: {csv_file_path}")
-        
-        return FileResponse(
-            path=csv_file_path,
-            media_type="text/csv",
-            filename=os.path.basename(csv_file_path)
-        )
+        # Return the generated invoice as a response
+        return invoice_json
     
     except Exception as e:
         logging.error(f"Error processing data: {str(e)}")
@@ -259,28 +246,28 @@ async def get_invoice_with_data_only(
             detail=f"Failed to process the data: {str(e)}"
         )
 
-# Endpoint to calculate product quantities based on input data
+# Endpoint to calculate product quantities based on provided roof measurement data
 @router.post("/calculate-product-quantities/")
 async def calculate_product_quantities(
-    Address: str = Form(...),
-    TotalRoofArea_sqft: float = Form(...),
-    RidgesHipsLength_ft: float = Form(...),
-    ValleysLength_ft: float = Form(...),
-    RidgesLength_ft: float = Form(...),
-    HipsLength_ft: float = Form(...),
-    RakesLength_ft: float = Form(...),
-    EavesLength_ft: float = Form(...),
-    EavesRakesLength_ft: float = Form(...),
-    StepFlashingLength_ft: float = Form(...),
-    WallFlashingLength_ft: float = Form(...),
-    number_of_vents: int = Form(...),
-    number_of_pipe_boots: int = Form(...)
+    Address: str = Form(...),  # Address of the property for which quantities are calculated
+    TotalRoofArea_sqft: float = Form(...),  # Total roof area in square feet
+    RidgesHipsLength_ft: float = Form(...),  # Combined length of ridges and hips in feet
+    ValleysLength_ft: float = Form(...),  # Total length of valleys in feet
+    RidgesLength_ft: float = Form(...),  # Length of ridges only, in feet
+    HipsLength_ft: float = Form(...),  # Length of hips only, in feet
+    RakesLength_ft: float = Form(...),  # Total length of rakes in feet
+    EavesLength_ft: float = Form(...),  # Total length of eaves in feet
+    EavesRakesLength_ft: float = Form(...),  # Combined length of eaves and rakes in feet
+    StepFlashingLength_ft: float = Form(...),  # Total length of step flashing in feet
+    WallFlashingLength_ft: float = Form(...),  # Total length of wall flashing in feet
+    number_of_vents: int = Form(...),  # Number of vents required
+    number_of_pipe_boots: int = Form(...)  # Number of pipe boots required
 ):
     """
-    Calculate product quantities based on input roof measurement data.
+    Calculate the quantities of roofing materials and accessories required based on the roof measurement data.
     """
     try:
-        # Construct the data dictionary
+        # Construct a dictionary with roof measurement data
         data = {
             "Address": Address,
             "TotalRoofArea_sqft": TotalRoofArea_sqft,
@@ -295,25 +282,29 @@ async def calculate_product_quantities(
             "WallFlashingLength_ft": WallFlashingLength_ft
         }
         
-        # Calculate product quantities
+        # Calculate quantities using the measurement data and additional parameters
         quantities = process_measurement_data_and_calculate_product_quantities(
             data=data,
             number_of_vents=number_of_vents,
             number_of_pipe_boots=number_of_pipe_boots
         )
         
-        logging.info(f"Calculated product quantities successfully")
+        logging.info(f"Successfully calculated product quantities for address: {Address}")
         
+        # Return the calculated quantities as a JSON response
         return quantities
     
     except Exception as e:
+        # Log the error for debugging purposes
         logging.error(f"Error calculating product quantities: {str(e)}")
+        
+        # Raise an HTTP exception with a 500 status code and detailed error message
         raise HTTPException(
             status_code=500,
             detail=f"Failed to calculate product quantities: {str(e)}"
         )
 
-# Endpoint to process quantities and return invoices
+# Endpoint to process quantities and generate an invoice
 @router.post("/process-quantities-and-generate-invoice/")
 async def process_quantities_and_generate_invoice(
     shingle_starters: int = Form(...),
@@ -336,35 +327,35 @@ async def process_quantities_and_generate_invoice(
     material_delivery_date: date = Form(...),
     installation_date: date = Form(...),
     homeowner_email: str = Form(...),
-    drip_edge: bool = Form(...)
+    drip_edge: bool = Form(...),
 ):
     """
-    Process the quantities and return an invoice.
+    Process the quantities provided by the user and generate an invoice.
     """
     try:
-        # Construct the data dictionary
+        # Create a dictionary to store the quantities of various materials
         quantities = {
             "Shingle Starters": shingle_starters,
-            "Sand Ice Water Shield/Ice Water Underlayments": sand_ice_water_shield,
-            "Roofing Nails/Coil Roofing Nails": roofing_nails,
-            "Ridge Vent System/Hip Vents": ridge_vent_system,
-            "Back Roof Vent/Ventilation": back_roof_vent,
-            "Step Flashing/Flashings": step_flashing,
-            "Pipe Flashing/Flashings": pipe_flashing,
-            "Roofing Staples/Staples": roofing_staples,
-            "Construction Sealant/Adhesives Caulks Sealants": construction_sealant,
-            "Dormer Flashing Sticks/Flashings": dormer_flashing_sticks,
-            "Caps/Hip And Ridge Shingles": caps,
-            "Drip Edge/Flashings": drip_edges,
+            "Sand Ice & Water Shield": sand_ice_water_shield,
+            "Coil Roofing Nails": roofing_nails,
+            "Ridge Vent System": ridge_vent_system,
+            "Back Roof Vent": back_roof_vent,
+            "Step Flashing": step_flashing,
+            "Pipe Flashing": pipe_flashing,
+            "Roofing Staples": roofing_staples,
+            "Construction Sealant": construction_sealant,
+            "Dormer Flashing Sticks": dormer_flashing_sticks,
+            "Caps": caps,
+            "Drip Edge": drip_edges,
             "Shingles": shingles,
             "Synthetic Underlayments": synthetic_underlayments
         }
         
-        # Normalize the shingle color (treat 'Default' as 'Charcoal')
+        # Normalize the shingle color (default to 'Charcoal' if the value is 'Default')
         normalized_shingle_color = normalize_shingle_color(shingle_color)
         
-        # Process quantities and generate invoices
-        invoice_df = process_quantities_and_return_invoice(
+        # Process the quantities and generate the invoice based on the provided details
+        invoice_json = process_quantities_and_return_invoice(
             quantities=quantities,
             shingle_color=normalized_shingle_color,
             type_of_structure=type_of_structure.value,
@@ -377,16 +368,8 @@ async def process_quantities_and_generate_invoice(
         
         logging.info("Successfully processed quantities and generated invoice")
         
-        # Save the DataFrame to a uniquely named CSV file
-        csv_file_path = get_unique_filename(DOWNLOAD_DIR, "invoice")
-        invoice_df.to_csv(csv_file_path, index=False)
-        logging.info(f"CSV file saved at: {csv_file_path}")
-        
-        return FileResponse(
-            path=csv_file_path,
-            media_type="text/csv",
-            filename=os.path.basename(csv_file_path)
-        )
+        # Return the generated invoice
+        return invoice_json
     
     except Exception as e:
         logging.error(f"Error processing quantities: {str(e)}")
@@ -394,3 +377,4 @@ async def process_quantities_and_generate_invoice(
             status_code=500,
             detail=f"Failed to process the quantities: {str(e)}"
         )
+
