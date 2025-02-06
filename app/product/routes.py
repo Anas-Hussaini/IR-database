@@ -59,7 +59,7 @@ def get_products(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
         raise
 
 # Get a product by ID
-@router.get("/get_product_by_category", response_model=schemas.Product)
+@router.get("/get_product_by_product_id", response_model=schemas.Product)
 def get_product(product_id: str, db: Session = Depends(get_db)):
     """
     Retrieve a product by its ID.
@@ -83,7 +83,7 @@ def get_product(product_id: str, db: Session = Depends(get_db)):
         raise
 
 # Update product by ID
-@router.put("/update_product_by_category", response_model=schemas.Product)
+@router.put("/update_product_product_id", response_model=schemas.Product)
 def update_product(
     product_id: str,
     description: str,
@@ -131,7 +131,7 @@ def update_product(
         raise
 
 # Delete product by ID
-@router.delete("/delete_product_by_category", response_model=schemas.Product)
+@router.delete("/delete_product_product_id", response_model=schemas.Product)
 def delete_product(product_id: str, db: Session = Depends(get_db)):
     """
     Delete a product by its ID from the database.
