@@ -65,3 +65,6 @@ service_api_documentation_improved.docx
 submit_order_api_documentation_improved.docx
 invoice(5).csv
 create_doc.py
+
+# Remove temporary .tmp files
+*.tmp
