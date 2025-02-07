@@ -261,7 +261,8 @@ async def calculate_product_quantities(
     StepFlashingLength_ft: float = Form(...),  # Total length of step flashing in feet
     WallFlashingLength_ft: float = Form(...),  # Total length of wall flashing in feet
     number_of_vents: int = Form(...),  # Number of vents required
-    number_of_pipe_boots: int = Form(...)  # Number of pipe boots required
+    number_of_pipe_boots: int = Form(...),  # Number of pipe boots required
+    drip_edge: bool = Form(...)
 ):
     """
     Calculate the quantities of roofing materials and accessories required based on the roof measurement data.
@@ -286,7 +287,8 @@ async def calculate_product_quantities(
         quantities = process_measurement_data_and_calculate_product_quantities(
             data=data,
             number_of_vents=number_of_vents,
-            number_of_pipe_boots=number_of_pipe_boots
+            number_of_pipe_boots=number_of_pipe_boots,
+            drip_edge=drip_edge
         )
         
         logging.info(f"Successfully calculated product quantities for address: {Address}")

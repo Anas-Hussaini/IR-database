@@ -241,6 +241,10 @@ def generate_invoice_json(quantities: Dict[str, int], type_of_structure: str, su
     #     logger.warning("No products fetched, returning an empty DataFrame")
     #     return pd.DataFrame()
     
+    if drip_edge==False:
+        if quantities["Drip Edge"]:
+            del quantities["Drip Edge"]
+    
     # Ensure the quantities provided match the number of fetched product categories
     if len(quantities) != len(products):
         raise ValueError("The number of quantities does not match the number of fetched products.")

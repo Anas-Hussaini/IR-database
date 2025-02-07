@@ -64,7 +64,7 @@ def process_json_and_return_invoice_json(data, number_of_vents, number_of_pipe_b
     logger.info("Invoice JSON generation complete.")
     return products_json
 
-def process_measurement_data_and_calculate_product_quantities(data, number_of_vents, number_of_pipe_boots):
+def process_measurement_data_and_calculate_product_quantities(data, number_of_vents, number_of_pipe_boots, drip_edge):
     """
     Process roof measurement data and calculate product quantities.
 
@@ -86,7 +86,7 @@ def process_measurement_data_and_calculate_product_quantities(data, number_of_ve
     logger.info(f"Wastage factors calculated: {wastage_factors}")
 
     logger.info("Calculating product quantities.")
-    quantities = calculate_product_quantities(formulas_by_category, data, number_of_vents, number_of_pipe_boots, wastage_factors)
+    quantities = calculate_product_quantities(formulas_by_category, data, number_of_vents, number_of_pipe_boots, wastage_factors, drip_edge)
     logger.info(f"Product quantities calculated: {quantities}")
 
     return quantities
