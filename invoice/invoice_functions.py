@@ -200,10 +200,14 @@ def calculate_product_quantities(formulas_by_category, data, number_of_vents: in
         quantities[category] = category_results[0] if category_results else None
     print(type(quantities))
     print(quantities)
-    if drip_edge==False:
-        del quantities["Drip Edge"]
-        
     logger.info("Calculated product quantities: %s", quantities)
+    
+    if drip_edge == False:
+        if "Drip Edge" in quantities:  # Ensure the key exists
+            logger.info("Deleting DripEdge from quantities: %s", quantities["Drip Edge"])
+            del quantities["Drip Edge"]
+        
+    logger.info("Returning product quantities: %s", quantities)
     return quantities
 
 # Function to generate the invoice DataFrame by fetching one product per category and including other details
@@ -241,8 +245,9 @@ def generate_invoice_json(quantities: Dict[str, int], type_of_structure: str, su
     #     logger.warning("No products fetched, returning an empty DataFrame")
     #     return pd.DataFrame()
     
-    if drip_edge==False:
-        if quantities["Drip Edge"]:
+    if drip_edge == False:
+        if "Drip Edge" in quantities:  # Ensure the key exists
+            logger.info("Deleting DripEdge from quantities: %s", quantities["Drip Edge"])
             del quantities["Drip Edge"]
     
     # Ensure the quantities provided match the number of fetched product categories
