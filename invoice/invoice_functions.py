@@ -119,7 +119,7 @@ def get_wastage_factors(db: Session, valleys_length: float, hips_length: float) 
     return results
 
 # Function to fetch one product for each category using the provided fetching function
-def fetch_all_products(db: Session, categories_with_colour: list, categories_with_no_variation: list, supplier: str, colour: str):
+def fetch_all_products(db: Session, categories_with_colour: list, categories_with_no_variation: list, supplier: str, colour: str, drip_edge: bool):
     """
     Fetch one product for each category using the provided fetching function.
     
@@ -129,6 +129,9 @@ def fetch_all_products(db: Session, categories_with_colour: list, categories_wit
     :param color: Product color.
     :return: List of dictionaries containing product details.
     """
+    if drip_edge == False:
+        categories_with_no_variation.remove("Drip Edge")
+    
     logger.info("Fetching products for categories=%s, supplier=%s, colour=%s", categories_with_colour + categories_with_no_variation, supplier, colour)
     products = []
     for category in categories_with_colour:
@@ -161,7 +164,7 @@ def fetch_all_products(db: Session, categories_with_colour: list, categories_wit
     return products
 
 # Function to calculate product quantities based on formulas, data, and wastage factors
-def calculate_product_quantities(formulas_by_category, data, number_of_vents: int, number_of_pipe_boots: int, wastage_factors: Dict[str, float]) -> Dict[str, int]:
+def calculate_product_quantities(formulas_by_category, data, number_of_vents: int, number_of_pipe_boots: int, wastage_factors: Dict[str, float], drip_edge:bool) -> Dict[str, int]:
     """
     Calculate the quantities for each product based on the input data.
 
@@ -195,6 +198,11 @@ def calculate_product_quantities(formulas_by_category, data, number_of_vents: in
                 logger.error("Error evaluating formula: %s", formula)
                 category_results.append(f"Error: {str(e)}")
         quantities[category] = category_results[0] if category_results else None
+    print(type(quantities))
+    print(quantities)
+    if drip_edge==False:
+        del quantities["Drip Edge"]
+        
     logger.info("Calculated product quantities: %s", quantities)
     return quantities
 
@@ -217,7 +225,7 @@ def generate_invoice_json(quantities: Dict[str, int], type_of_structure: str, su
     """
     logger.info("Generating invoice DataFrame")
     # Fetch products for all categories
-    products = fetch_all_products(db, categories_with_colour, categories_with_no_variation, supplier_id, colour)
+    products = fetch_all_products(db, categories_with_colour, categories_with_no_variation, supplier_id, colour, drip_edge)
     
     logger.info("Fetched products= %s", products)
     

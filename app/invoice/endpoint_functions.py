@@ -40,7 +40,7 @@ def process_json_and_return_invoice_json(data, number_of_vents, number_of_pipe_b
     logger.info(f"Wastage factors calculated: {wastage_factors}")
 
     logger.info("Calculating product quantities based on formulas and input data.")
-    quantities = calculate_product_quantities(formulas_by_category, data, number_of_vents, number_of_pipe_boots, wastage_factors)
+    quantities = calculate_product_quantities(formulas_by_category, data, number_of_vents, number_of_pipe_boots, wastage_factors, drip_edge)
     logger.info(f"Product quantities calculated: {quantities}")
 
     logger.info("Fetching category variations from the database.")
