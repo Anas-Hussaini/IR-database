@@ -254,8 +254,12 @@ def fetch_item_details(base_url, items_endpoint, item_number, cookies):
     try:
         logger.info("Fetching item details for item number: %s", item_number)
         response = requests.get(url, headers=headers, cookies=cookies)
+        logger.info("Response fetching item details is: %s", response.json())
         response.raise_for_status()  # Raise an error for bad responses
-        return response.json()
+        response_json = response.json()
+        if response_json["product"] == None:
+            raise Exception(f"Error 1001: Product:{item_number} has null value in BEACON-ENDPOINT response")
+        return response_json
     except requests.exceptions.RequestException as e:
         logger.error("Error fetching item details: %s", e)
         raise HTTPException(status_code=400, detail="Failed to fetch item details.")
